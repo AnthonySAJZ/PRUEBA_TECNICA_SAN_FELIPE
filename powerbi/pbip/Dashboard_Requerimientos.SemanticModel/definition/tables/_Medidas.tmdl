@@ -1,0 +1,146 @@
+table _Medidas
+	lineageTag: e843863e-8032-528c-b4e7-af85a5d9b3f3
+
+	/// Conteo único de tickets atendidos: un ticket con varios registros cuenta 1.
+	measure 'Q Tickets' = DISTINCTCOUNT ( Requerimientos[Codigo] )
+		formatString: #,0
+		lineageTag: 6d2852c3-6075-5c49-98b3-baf4d99b9f8a
+
+	/// Conteo total de registros de horas.
+	measure 'Q Registros' = COUNTROWS ( Requerimientos )
+		formatString: #,0
+		lineageTag: 918639f3-7449-5237-8fb6-191b7ee480f1
+
+	/// Suma total de horas invertidas (horas tratadas en la limpieza).
+	measure 'Q Horas' = SUM ( Requerimientos[Horas] )
+		formatString: #,0
+		lineageTag: 5cf913b2-52ea-5521-86e6-f964af07d8e7
+
+	/// Horas promedio dedicadas por ticket.
+	measure 'Promedio Horas x Ticket' = DIVIDE ( [Q Horas], [Q Tickets] )
+		formatString: #,0.00
+		lineageTag: d1d0a369-a3c6-5a41-8eb6-2123ccadf25f
+
+	/// Proporción de tickets cerrados o resueltos (según el último estado del ticket) sobre el total.
+	measure '% Resueltos' =
+			VAR TicketsResueltos =
+			    CALCULATE (
+			        DISTINCTCOUNT ( Requerimientos[Codigo] ),
+			        KEEPFILTERS ( Requerimientos[EstadoTicket] IN { "Cerrado", "Resuelto" } )
+			    )
+			RETURN
+			    DIVIDE ( TicketsResueltos, [Q Tickets] )
+		formatString: 0.0%
+		lineageTag: 5ca6e40a-7822-5e8b-9818-d42002952d59
+
+	measure 'Q Tickets Resueltos' =
+			CALCULATE (
+			    DISTINCTCOUNT ( Requerimientos[Codigo] ),
+			    KEEPFILTERS ( Requerimientos[EstadoTicket] IN { "Cerrado", "Resuelto" } )
+			)
+		formatString: #,0
+		displayFolder: Apoyo
+		lineageTag: bad3f269-2f24-587b-a41d-d7b2e17c81a0
+
+	measure 'Q Tickets Pendientes' = [Q Tickets] - [Q Tickets Resueltos]
+		formatString: #,0
+		displayFolder: Apoyo
+		lineageTag: fab1e6c1-ec8b-5fb2-97c4-faff87ac16c5
+
+	measure 'Promedio Horas x Registro' = AVERAGE ( Requerimientos[Horas] )
+		formatString: #,0.00
+		displayFolder: Apoyo
+		lineageTag: 893481c8-9ab8-5cea-ae9f-0f6758e4e72a
+
+	measure 'Mediana Horas x Registro' = MEDIAN ( Requerimientos[Horas] )
+		formatString: #,0.00
+		displayFolder: Apoyo
+		lineageTag: 69227e3c-7895-54c6-bc5c-b6a8a72369a6
+
+	/// Horas promedio por técnico y día trabajado (la jornada observada es ~9.5 h).
+	measure 'Horas x Usuario Dia' =
+			DIVIDE (
+			    [Q Horas],
+			    COUNTROWS ( SUMMARIZE ( Requerimientos, Requerimientos[Usuario], Requerimientos[FechaRegistro] ) )
+			)
+		formatString: #,0.00
+		displayFolder: Apoyo
+		lineageTag: 3790c339-5b67-5ac4-9ae7-4ed1afe536cc
+
+	/// Días-técnico con más de 12 h registradas (se excluye NO IDENTIFICADO).
+	measure 'Q Dias Sobrecargados' =
+			COUNTROWS (
+			    FILTER (
+			        SUMMARIZE ( Requerimientos, Requerimientos[Usuario], Requerimientos[FechaRegistro] ),
+			        Requerimientos[Usuario] <> "NO IDENTIFICADO"
+			            && CALCULATE ( SUM ( Requerimientos[Horas] ) ) > 12
+			    )
+			)
+		formatString: #,0
+		displayFolder: Apoyo
+		lineageTag: aee74262-4181-5b4f-b4b2-5a3d786a99dc
+
+	measure '% Horas del Total' = DIVIDE ( [Q Horas], CALCULATE ( [Q Horas], ALLSELECTED ( Requerimientos ) ) )
+		formatString: 0.0%
+		displayFolder: Apoyo
+		lineageTag: 642216b4-f905-5f06-a52a-5e05493dc012
+
+	/// Horas registradas en tickets abiertos antes de 2026.
+	measure 'Q Horas Backlog Anterior 2026' =
+			CALCULATE (
+			    [Q Horas],
+			    KEEPFILTERS ( Requerimientos[AnioTicket] < 2026 )
+			)
+		formatString: #,0
+		displayFolder: Apoyo
+		lineageTag: bbadee45-2ed0-540c-bc14-a9599041dc86
+
+	measure '% Horas Backlog' = DIVIDE ( [Q Horas Backlog Anterior 2026], [Q Horas] )
+		formatString: 0.0%
+		displayFolder: Apoyo
+		lineageTag: 954113b5-7fce-55f2-8bd7-f55a3a51c009
+
+	measure 'Q Tickets Mes Anterior' = CALCULATE ( [Q Tickets], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+		formatString: #,0
+		displayFolder: Inteligencia de tiempo
+		lineageTag: 7978427e-ddff-5316-b0a6-29ee42ca195f
+
+	measure 'Var % Q Tickets MoM' = DIVIDE ( [Q Tickets] - [Q Tickets Mes Anterior], [Q Tickets Mes Anterior] )
+		formatString: 0.0%
+		displayFolder: Inteligencia de tiempo
+		lineageTag: 12226ec7-a7c0-5370-ad64-7e4e01f595eb
+
+	measure 'Q Horas Mes Anterior' = CALCULATE ( [Q Horas], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+		formatString: #,0
+		displayFolder: Inteligencia de tiempo
+		lineageTag: 1ca75959-b8f6-53f6-94ea-835740fedf93
+
+	measure 'Var % Q Horas MoM' = DIVIDE ( [Q Horas] - [Q Horas Mes Anterior], [Q Horas Mes Anterior] )
+		formatString: 0.0%
+		displayFolder: Inteligencia de tiempo
+		lineageTag: cc3d7adb-d10b-5e07-aa7a-d6b1c2987cab
+
+	column Columna1
+		dataType: string
+		isHidden
+		lineageTag: a23abcf4-0ac6-551a-996e-a9ad538b5681
+		summarizeBy: none
+		sourceColumn: Columna1
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Medidas = m
+		mode: import
+		source =
+				let
+				    Origen = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Columna1 = _t]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(Origen,{{"Columna1", type text}})
+				in
+				    #"Tipo cambiado"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

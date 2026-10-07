@@ -1,0 +1,282 @@
+table Requerimientos
+	lineageTag: 123ff171-9eff-52d5-af1b-4e640ddccb39
+
+	column IdRegistro
+		dataType: int64
+		formatString: 0
+		lineageTag: b2325219-5dca-5962-8a8a-434420ab35ae
+		summarizeBy: none
+		sourceColumn: IdRegistro
+
+		annotation SummarizationSetBy = User
+
+	column Codigo
+		dataType: string
+		lineageTag: 135bb4b3-7252-58d2-9f1d-7e670ac40e61
+		summarizeBy: none
+		sourceColumn: Codigo
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tipo
+		dataType: string
+		lineageTag: 500947ff-76f1-5a35-9f9d-52eda00d4e05
+		summarizeBy: none
+		sourceColumn: Tipo
+
+		annotation SummarizationSetBy = Automatic
+
+	column SistemaCanal
+		dataType: string
+		lineageTag: 7e1db07b-e788-50fb-a1e1-442118765ed9
+		summarizeBy: none
+		sourceColumn: SistemaCanal
+
+		annotation SummarizationSetBy = Automatic
+
+	column Usuario
+		dataType: string
+		lineageTag: b7188e82-6cc1-5c56-95b2-f872a4d23248
+		summarizeBy: none
+		sourceColumn: Usuario
+
+		annotation SummarizationSetBy = Automatic
+
+	column Equipo
+		dataType: string
+		lineageTag: b2c76cf6-26d0-5eb6-8b16-6021c11a8371
+		summarizeBy: none
+		sourceColumn: Equipo
+
+		annotation SummarizationSetBy = Automatic
+
+	column AccionCodigo
+		dataType: int64
+		formatString: 0
+		lineageTag: 85bb4019-37fd-59a7-abcd-d8a607952b78
+		summarizeBy: none
+		sourceColumn: AccionCodigo
+
+		annotation SummarizationSetBy = User
+
+	column Accion
+		dataType: string
+		lineageTag: e5d946f2-91b1-5bb5-bc1f-bb3dfcf8ade8
+		summarizeBy: none
+		sourceColumn: Accion
+
+		annotation SummarizationSetBy = Automatic
+
+	column FechaRegistro
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 08fdcb0d-a097-522a-b718-6d58a2ebd84c
+		summarizeBy: none
+		sourceColumn: FechaRegistro
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 6df52ad0-e397-5697-b37a-0ed47efd96f8
+		summarizeBy: none
+		sourceColumn: Anio
+
+		annotation SummarizationSetBy = User
+
+	column Mes
+		dataType: int64
+		formatString: 0
+		lineageTag: 6cb80819-77d4-531f-8d03-83a756f85ff0
+		summarizeBy: none
+		sourceColumn: Mes
+
+		annotation SummarizationSetBy = User
+
+	column AnioMes
+		dataType: string
+		lineageTag: 8c4c9b93-09ee-50c7-a0ce-8afc4371bef9
+		summarizeBy: none
+		sourceColumn: AnioMes
+
+		annotation SummarizationSetBy = Automatic
+
+	column HorasOriginal
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 156f2719-2b79-58e3-bf3f-7b53c5f57c30
+		summarizeBy: sum
+		sourceColumn: HorasOriginal
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column Horas
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 9c5e8a78-d13d-54cc-a493-9882ded16442
+		summarizeBy: sum
+		sourceColumn: Horas
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column Estado
+		dataType: string
+		lineageTag: 94ad3f5b-ae04-5f0d-aa29-c8162aa9009c
+		summarizeBy: none
+		sourceColumn: Estado
+
+		annotation SummarizationSetBy = Automatic
+
+	column EstadoTicket
+		dataType: string
+		lineageTag: 098403c9-630c-513e-b622-50ce49f4d226
+		summarizeBy: none
+		sourceColumn: EstadoTicket
+
+		annotation SummarizationSetBy = Automatic
+
+	column EsResuelto
+		dataType: int64
+		formatString: 0
+		lineageTag: 07e06112-50b8-5ab2-94d5-b25809f1d9b7
+		summarizeBy: sum
+		sourceColumn: EsResuelto
+
+		annotation SummarizationSetBy = Automatic
+
+	column FlagFechaImputada
+		dataType: int64
+		formatString: 0
+		lineageTag: ba4f01fb-2f23-5010-8311-b1fb21232109
+		summarizeBy: sum
+		sourceColumn: FlagFechaImputada
+
+		annotation SummarizationSetBy = Automatic
+
+	column FlagHorasImputadas
+		dataType: int64
+		formatString: 0
+		lineageTag: bae8be4d-759f-50a5-a598-cfaf8c93a1f9
+		summarizeBy: sum
+		sourceColumn: FlagHorasImputadas
+
+		annotation SummarizationSetBy = Automatic
+
+	column FlagHorasAjustadas
+		dataType: int64
+		formatString: 0
+		lineageTag: bfddf6e5-b161-5ac7-bdef-58bdf1559538
+		summarizeBy: sum
+		sourceColumn: FlagHorasAjustadas
+
+		annotation SummarizationSetBy = Automatic
+
+	column FlagEstadoImputado
+		dataType: int64
+		formatString: 0
+		lineageTag: bc3336af-cf48-59d9-9ed8-4da359dc2ab1
+		summarizeBy: sum
+		sourceColumn: FlagEstadoImputado
+
+		annotation SummarizationSetBy = Automatic
+
+	column FlagSistemaImputado
+		dataType: int64
+		formatString: 0
+		lineageTag: cc4fca6e-2927-5beb-9af8-09591a9277e9
+		summarizeBy: sum
+		sourceColumn: FlagSistemaImputado
+
+		annotation SummarizationSetBy = Automatic
+
+	column FlagDiaSobrecargado
+		dataType: int64
+		formatString: 0
+		lineageTag: 74a94bc3-2d83-560a-a9b9-19d9889580cc
+		summarizeBy: sum
+		sourceColumn: FlagDiaSobrecargado
+
+		annotation SummarizationSetBy = Automatic
+
+	column FilaOrigen
+		dataType: int64
+		formatString: 0
+		lineageTag: 6126eab0-68ad-56d5-861e-081790c226a0
+		summarizeBy: none
+		sourceColumn: FilaOrigen
+
+		annotation SummarizationSetBy = User
+
+	column FechaOriginal
+		dataType: string
+		lineageTag: cd091830-2077-5977-bc38-3770344107e4
+		summarizeBy: none
+		sourceColumn: FechaOriginal
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnioTicket
+		dataType: int64
+		formatString: 0
+		lineageTag: 901c0e49-dda8-5c8b-9deb-20406ccd777f
+		summarizeBy: none
+		sourceColumn: AnioTicket
+
+		annotation SummarizationSetBy = User
+
+	partition Requerimientos = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents(RutaArchivoCSV), [Delimiter = ",", Columns = 25, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),
+				    // Los decimales del CSV usan punto: se tipan con cultura en-US
+				    Tipos = Table.TransformColumnTypes(
+				        Encabezados,
+				        {
+				        {"IdRegistro", Int64.Type},
+				        {"Codigo", type text},
+				        {"Tipo", type text},
+				        {"SistemaCanal", type text},
+				        {"Usuario", type text},
+				        {"Equipo", type text},
+				        {"AccionCodigo", Int64.Type},
+				        {"Accion", type text},
+				        {"FechaRegistro", type date},
+				        {"Anio", Int64.Type},
+				        {"Mes", Int64.Type},
+				        {"AnioMes", type text},
+				        {"HorasOriginal", type number},
+				        {"Horas", type number},
+				        {"Estado", type text},
+				        {"EstadoTicket", type text},
+				        {"EsResuelto", Int64.Type},
+				        {"FlagFechaImputada", Int64.Type},
+				        {"FlagHorasImputadas", Int64.Type},
+				        {"FlagHorasAjustadas", Int64.Type},
+				        {"FlagEstadoImputado", Int64.Type},
+				        {"FlagSistemaImputado", Int64.Type},
+				        {"FlagDiaSobrecargado", Int64.Type},
+				        {"FilaOrigen", Int64.Type},
+				        {"FechaOriginal", type text}
+				        },
+				        "en-US"
+				    ),
+				    // Año de apertura del ticket tomado del código: "REQ 2024-022552" -> 2024
+				    AnioTicket = Table.AddColumn(Tipos, "AnioTicket", each Number.FromText(Text.Middle([Codigo], 4, 4)), Int64.Type)
+				in
+				    AnioTicket
+
+	annotation PBI_ResultType = Table
+

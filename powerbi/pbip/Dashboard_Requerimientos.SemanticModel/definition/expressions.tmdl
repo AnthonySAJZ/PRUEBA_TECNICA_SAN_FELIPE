@@ -1,0 +1,5 @@
+expression RutaArchivoCSV = "C:\PruebaSanFelipe\data\clean\RequerimientosPruebaDatos_Limpio.csv" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 19e7635b-56b5-5e4d-8b34-95682027ed6c
+
+	annotation PBI_ResultType = Text
+
