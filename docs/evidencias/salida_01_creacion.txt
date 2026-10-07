@@ -1,0 +1,2 @@
+Changed database context to 'PruebaSanFelipe'.
+Objetos creados: stg.RequerimientosRaw, stg.vw_RequerimientosRaw_Carga, dbo.Requerimientos, dbo.RequerimientosLimpio

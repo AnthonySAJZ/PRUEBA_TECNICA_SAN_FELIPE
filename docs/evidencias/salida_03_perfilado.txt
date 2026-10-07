@@ -1,0 +1,160 @@
+Changed database context to 'PruebaSanFelipe'.
+TotalRegistros|CodigosUnicos|CodigosUnicosNormalizados|RegistrosPromedioPorCodigo|RegistrosAdicionalesPorRepeticion
+--------------|-------------|-------------------------|--------------------------|---------------------------------
+7158|3407|3406|2.10|3751
+Codigo|Registros|Usuarios|HorasTotales
+------|---------|--------|------------
+REQ 2026-006414|232|5|683.17
+REQ 2024-022552|212|14|1121.92
+REQ 2024-023822|153|8|1123.00
+REQ 2025-017900|151|5|518.92
+REQ 2024-021925|118|6|543.17
+REQ 2025-003378|79|2|412.00
+REQ 2026-014152|74|4|502.25
+REQ 2026-021343|54|5|199.92
+REQ 2026-003857|52|4|158.00
+REQ 2026-006194|49|4|190.50
+Orden|Columna|NulosOVacios|PorcentajeNulosOVacios|NoConvertibles|PorcentajeSinDatoUtil
+-----|-------|------------|----------------------|--------------|---------------------
+1|ID|7158|100.00|0|100.00
+2|REQ (Codigo)|0|.00|0|.00
+3|TIPO|0|.00|0|.00
+4|SISTEMA/ CANAL|36|.50|0|.50
+5|USUARIO|39|.54|0|.54
+6|ACCIÓN|24|.34|0|.34
+7|FECHA|33|.46|22|.77
+8|HORAS|45|.63|0|.63
+9|ESTADO|105|1.47|0|1.47
+FechaMinima|FechaMaxima|DiasCalendario|DiasConRegistro|RegistrosSinFechaValida
+-----------|-----------|--------------|---------------|-----------------------
+2026-01-02|2026-06-30|180|142|55
+AnioMes|Registros|Tickets|Horas
+-------|---------|-------|-----
+2026-01|1040|645|2411.92
+2026-02|1158|679|2506.50
+2026-03|1514|704|3070.33
+2026-04|1237|603|2799.33
+2026-05|1015|518|2831.33
+2026-06|1139|521|3407.92
+Variable|ValoresDistintos
+--------|----------------
+Tipo|4
+Estado|6
+Accion|28
+Usuario|19
+Variable|Valor|Registros|Porcentaje
+--------|-----|---------|----------
+Accion|[02_Analisis]|3464|48.39
+Accion|[04_Desarrollo]|1882|26.29
+Accion|[01_Reunion de Entendimiento]|382|5.34
+Accion|[25_Desarrollo_Datos]|236|3.30
+Accion|[07_Documentación]|210|2.93
+Accion|[11_Reunion Interna DEV]|150|2.10
+Accion|[05_Pruebas Unitarias]|139|1.94
+Accion|[09_Acompañamiento QA]|106|1.48
+Accion|[06_Pruebas Usuario Final]|97|1.36
+Accion|[15_Acompañamiento SD]|66|.92
+Accion|[24_Analisis_Datos]|66|.92
+Accion|[19_Reunion Proveedores]|64|.89
+Accion|[10_Acompañamiento PRD]|48|.67
+Accion|[28_Reunion de Entendimiento_Datos]|39|.54
+Accion|[14_Seguimiento Requerimiento]|35|.49
+Accion|[03_Estimación de Actividades]|32|.45
+Accion|[<NULL>]|24|.34
+Accion|[17_Capacitaciones]|16|.22
+Accion|[20_Reunion Seguimiento]|16|.22
+Accion|[30_Reunion Interna DEV_Datos]|15|.21
+Accion|[08_Desarrollo Iteración]|14|.20
+Accion|[18_Configuraciones]|14|.20
+Accion|[02_Analizado]|12|.17
+Accion|[31_Acompañamiento SD_Datos]|9|.13
+Accion|[24_Validaciones QA]|8|.11
+Accion|[32_Reunion Seguimiento_Datos]|5|.07
+Accion|[26_Estimacion de Actividades_Datos]|4|.06
+Accion|[27_Seguimiento Requerimiento_Datos]|4|.06
+Accion|[29_Acompañamiento PRD_Datos]|1|.01
+Estado|[Cerrada]|6193|86.52
+Estado|[Cerrado]|832|11.62
+Estado|[NULL]|105|1.47
+Estado|[Resuelta]|14|.20
+Estado|[Asignada a un grupo]|9|.13
+Estado|[Resuelto]|5|.07
+Tipo|[REQ]|3660|51.13
+Tipo|[INC]|1662|23.22
+Tipo|[EXP]|992|13.86
+Tipo|[PRY]|844|11.79
+Usuario|[JREBAZA]|1091|15.24
+Usuario|[PBARDALES]|990|13.83
+Usuario|[JROSALES]|884|12.35
+Usuario|[AGARCIA]|587|8.20
+Usuario|[YSUYCO]|570|7.96
+Usuario|[FGONZALES]|462|6.45
+Usuario|[AINGA]|373|5.21
+Usuario|[AMOROMISATO]|339|4.74
+Usuario|[CRODRIGUEZ]|267|3.73
+Usuario|[ACARRASCO]|266|3.72
+Usuario|[TMACASSI]|244|3.41
+Usuario|[JGUILLEN]|242|3.38
+Usuario|[RRUIZ]|199|2.78
+Usuario|[RGREY]|195|2.72
+Usuario|[FPINEDO]|187|2.61
+Usuario|[SRODRIGUEZ]|160|2.24
+Usuario|[<NULL>]|39|.54
+Usuario|[MCARRASCO]|31|.43
+Usuario|[CGARIBAY]|20|.28
+Usuario|[MABANTO]|12|.17
+GruposDuplicados|FilasDuplicadasSobrantes
+----------------|------------------------
+66|71
+Hallazgo|Valor|Registros
+--------|-----|---------
+Estado con distinto género|Resuelta|14
+Estado con distinto género|Cerrada|6193
+Estado con distinto género|Cerrado|832
+Estado con distinto género|Resuelto|5
+Estado con texto literal NULL|NULL|105
+Acción sinónima de 02_Analisis|02_Analisis|3464
+Acción sinónima de 02_Analisis|02_Analizado|12
+Sistema con espacio duro (CHAR 160)|PORTAL·PROVEEDORES|29
+Sistema con error tipográfico|AGENDA PROCEDMIENTOS|15
+Código con prefijo en minúsculas|Req 2024-006886|1
+FechaTexto|Registros
+----------|---------
+32/11/2026|7
+24/16/2026|6
+03/21/2026|4
+18/13/2026|3
+33/03/2026|1
+35/01/2026|1
+Q1_Horas|Mediana_Horas|Q3_Horas|IQR_Horas|CercoModerado_Horas|CercoExtremo_Horas|Minimo_Horas|Maximo_Horas|AtipicosModerados|AtipicosExtremos
+--------|-------------|--------|---------|-------------------|------------------|------------|------------|-----------------|----------------
+.67|1.50|3.00|2.33|6.50|10.00|.1667|16.0000|684|55
+DiasTecnicoMas12h|RegistrosEnEsosDias
+-----------------|-------------------
+39|195
+Usuario|FechaRegistro|Registros|HorasDia
+-------|-------------|---------|--------
+JGUILLEN|2026-02-05|2|19.00
+JGUILLEN|2026-02-06|2|19.00
+YSUYCO|2026-01-20|10|19.00
+YSUYCO|2026-02-02|26|19.00
+RGREY|2026-02-04|4|16.50
+FPINEDO|2026-02-27|2|16.00
+TMACASSI|2026-01-02|1|16.00
+YSUYCO|2026-01-03|1|16.00
+AINGA|2026-01-07|1|15.50
+FGONZALES|2026-01-07|1|15.00
+JREBAZA|2026-01-07|4|15.00
+JREBAZA|2026-02-12|18|14.50
+FPINEDO|2026-04-20|2|14.00
+RGREY|2026-02-03|4|14.00
+RRUIZ|2026-02-12|5|14.00
+PrefijoCodigo|Tipo|Registros
+-------------|----|---------
+INC|EXP|490
+INC|INC|1625
+INC|REQ|1
+REQ|EXP|502
+REQ|INC|37
+REQ|PRY|844
+REQ|REQ|3659

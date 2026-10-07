@@ -1,0 +1,99 @@
+table Calendario
+	lineageTag: 897bf891-005e-57be-9eb8-9803094e9a1d
+	dataCategory: Time
+
+	column Fecha
+		dataType: dateTime
+		isKey
+		formatString: dd/mm/yyyy
+		lineageTag: 97e4305e-86bf-563b-ba61-5bf4fdc20888
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Fecha]
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 1cb06a9b-8b19-52a7-8409-2ecfc28a76f9
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Anio]
+
+		annotation SummarizationSetBy = User
+
+	column Mes
+		dataType: int64
+		formatString: 0
+		lineageTag: 0d90225e-b24d-5442-87bb-f39c6d37e8bb
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Mes]
+
+		annotation SummarizationSetBy = User
+
+	column AnioMes
+		dataType: string
+		lineageTag: 7d0e0c4b-cf41-5dcb-8861-77a4dc03aab8
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [AnioMes]
+
+		annotation SummarizationSetBy = Automatic
+
+	column NombreMes
+		dataType: string
+		lineageTag: 4fec5381-e161-5b53-b922-71f9b95db341
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [NombreMes]
+		sortByColumn: AnioMes
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaSemana
+		dataType: int64
+		formatString: 0
+		lineageTag: 5fd49ec1-a09d-5dcb-b110-ac1d4d83df68
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [DiaSemana]
+
+		annotation SummarizationSetBy = User
+
+	partition Calendario = calculated
+		mode: import
+		source =
+				VAR FechaMin = MIN ( Requerimientos[FechaRegistro] )
+				VAR FechaMax = MAX ( Requerimientos[FechaRegistro] )
+				RETURN
+				    SELECTCOLUMNS (
+				        CALENDAR ( DATE ( YEAR ( FechaMin ), MONTH ( FechaMin ), 1 ), EOMONTH ( FechaMax, 0 ) ),
+				        "Fecha", [Date],
+				        "Anio", YEAR ( [Date] ),
+				        "Mes", MONTH ( [Date] ),
+				        "AnioMes", FORMAT ( [Date], "yyyy-mm" ),
+				        "NombreMes",
+				            SWITCH (
+				                MONTH ( [Date] ),
+				                1, "Ene", 2, "Feb", 3, "Mar", 4, "Abr", 5, "May", 6, "Jun",
+				                7, "Jul", 8, "Ago", 9, "Set", 10, "Oct", 11, "Nov", 12, "Dic"
+				            ) & " " & YEAR ( [Date] ),
+				        "DiaSemana", WEEKDAY ( [Date], 2 )
+				    )
+

@@ -1,0 +1,4 @@
+relationship 379298cc-7413-5eef-a832-1faa5aa7c742
+	fromColumn: Requerimientos.FechaRegistro
+	toColumn: Calendario.Fecha
+

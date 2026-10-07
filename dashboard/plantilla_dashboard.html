@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Requerimientos TI</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --text: #0b0b0b; --text-2: #52514e; --muted: #6f6d68;
+    --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+    --seq-0: #cfe0f6; --seq-1: #b7d3f6; --seq-2: #6da7ec; --seq-3: #2a78d6; --seq-4: #184f95; --seq-5: #0d366b;
+    --focus: #2a78d6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --text: #ffffff; --text-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+      --seq-0: #1d2633; --seq-1: #183a66; --seq-2: #1c5cab; --seq-3: #3987e5; --seq-4: #86b6ef; --seq-5: #cde2fb;
+      --focus: #3987e5;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --text: #ffffff; --text-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --seq-0: #1d2633; --seq-1: #183a66; --seq-2: #1c5cab; --seq-3: #3987e5; --seq-4: #86b6ef; --seq-5: #cde2fb;
+    --focus: #3987e5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 24px 16px 40px; }
+  header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+  .sub { color: var(--text-2); margin: 4px 0 0; }
+  .btn {
+    font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--axis); }
+  .btn:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+  }
+  .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-2); }
+  .filters select {
+    font: inherit; font-size: 13px; color: var(--text); background: var(--page); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 8px; min-width: 130px; max-width: 220px;
+  }
+  .filters .hint { color: var(--muted); font-size: 12px; margin-left: auto; align-self: center; }
+
+  .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .kpi .lbl { color: var(--text-2); font-size: 13px; }
+  .kpi .val { font-size: 30px; font-weight: 650; letter-spacing: -0.02em; margin-top: 2px; }
+  .kpi .cap { color: var(--muted); font-size: 12px; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 10px; min-width: 0; }
+  .card.full { grid-column: 1 / -1; }
+  .card h2 { font-size: 15px; margin: 0; }
+  .card .desc { color: var(--text-2); font-size: 12.5px; margin: 2px 0 6px; }
+  .chart { width: 100%; height: 300px; }
+  .chart.tall { height: 640px; }
+  details { margin-top: 4px; }
+  summary { cursor: pointer; color: var(--text-2); font-size: 12.5px; padding: 4px 0; }
+  .tbl { max-height: 280px; overflow: auto; margin-top: 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th { color: var(--text-2); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  footer { color: var(--text-2); font-size: 12.5px; margin-top: 18px; }
+  footer code { font-size: 12px; }
+
+  @media (max-width: 900px) {
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    .chart.tall { height: 720px; }
+    .filters .hint { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Gestión de requerimientos TI · __PERIODO__</h1>
+      <p class="sub">Registros de horas por ticket, técnico y actividad · fuente: archivo limpio del Módulo 2</p>
+    </div>
+    <button class="btn" id="tema" type="button">Tema: auto</button>
+  </header>
+
+  <section class="filters" aria-label="Filtros">
+    <label>Mes desde <select id="fMesDesde"></select></label>
+    <label>Mes hasta <select id="fMesHasta"></select></label>
+    <label>Tipo <select id="fTipo"></select></label>
+    <label>Grupo (Sistema/Canal) <select id="fSistema"></select></label>
+    <label>Usuario <select id="fUsuario"></select></label>
+    <label>Equipo <select id="fEquipo"></select></label>
+    <button class="btn" id="limpiar" type="button">Limpiar filtros</button>
+    <span class="hint">Clic en el anillo o en un punto del gráfico de dispersión para filtrar</span>
+  </section>
+
+  <section class="kpis" aria-label="Indicadores" aria-live="polite">
+    <div class="kpi"><div class="lbl">Q Tickets</div><div class="val" id="kTickets">–</div><div class="cap" id="cTickets"></div></div>
+    <div class="kpi"><div class="lbl">Q Horas</div><div class="val" id="kHoras">–</div><div class="cap" id="cHoras"></div></div>
+    <div class="kpi"><div class="lbl">Promedio Horas x Ticket</div><div class="val" id="kProm">–</div><div class="cap" id="cProm"></div></div>
+    <div class="kpi"><div class="lbl">% Resueltos</div><div class="val" id="kRes">–</div><div class="cap" id="cRes"></div></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Tendencia · Q Tickets por mes</h2>
+      <p class="desc">Tickets únicos con horas registradas en el mes.</p>
+      <div class="chart" id="chTickets" role="img" aria-label="Línea de tickets por mes"></div>
+      <details><summary>Ver tabla</summary><div class="tbl" id="tbTendencia"></div></details>
+    </article>
+    <article class="card">
+      <h2>Tendencia · Q Horas por mes</h2>
+      <p class="desc">Se muestra aparte para no forzar dos escalas en un mismo eje.</p>
+      <div class="chart" id="chHoras" role="img" aria-label="Línea de horas por mes"></div>
+    </article>
+    <article class="card">
+      <h2>Distribución · Q Tickets por Tipo</h2>
+      <p class="desc">REQ requerimiento · INC incidente · PRY proyecto · EXP (la fuente no define su significado).</p>
+      <div class="chart" id="chTipo" role="img" aria-label="Gráfico de anillo de tickets por tipo"></div>
+      <details><summary>Ver tabla</summary><div class="tbl" id="tbTipo"></div></details>
+    </article>
+    <article class="card">
+      <h2>Eficiencia · Q Tickets vs Q Horas por Usuario</h2>
+      <p class="desc">Arriba-izquierda: pocas tareas largas · abajo-derecha: muchas tareas cortas.</p>
+      <div class="chart" id="chUsuario" role="img" aria-label="Dispersión de tickets contra horas por usuario"></div>
+      <details><summary>Ver tabla</summary><div class="tbl" id="tbUsuario"></div></details>
+    </article>
+    <article class="card full">
+      <h2>Matriz de trabajo · Q Horas por Acción y Usuario</h2>
+      <p class="desc">Color más intenso = más horas. Usuarios ordenados por horas totales.</p>
+      <div class="chart tall" id="chMatriz" role="img" aria-label="Mapa de calor de horas por acción y usuario"></div>
+      <details><summary>Ver tabla</summary><div class="tbl" id="tbMatriz"></div></details>
+    </article>
+  </section>
+
+  <footer>
+    <p><strong>Medidas (equivalente DAX):</strong>
+      <code>Q Tickets = DISTINCTCOUNT(Codigo)</code> ·
+      <code>Q Horas = SUM(Horas)</code> ·
+      <code>Promedio Horas x Ticket = DIVIDE([Q Horas],[Q Tickets])</code> ·
+      <code>% Resueltos = tickets con EstadoTicket Cerrado/Resuelto ÷ Q Tickets</code>.</p>
+    <p>Datos: __RESUMEN__.</p>
+  </footer>
+</div>
+
+<script>__ECHARTS__</script>
+<script>
+"use strict";
+const D = __DATA__;
+
+const N = D.h.length;
+const fmt0 = new Intl.NumberFormat("es-PE", { maximumFractionDigits: 0 });
+const fmt1 = new Intl.NumberFormat("es-PE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fmt2 = new Intl.NumberFormat("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const pct1 = new Intl.NumberFormat("es-PE", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Set", "Oct", "Nov", "Dic"];
+const etiquetaMes = (am) => MESES[Number(am.slice(5, 7)) - 1] + " " + am.slice(0, 4);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const estado = { mesDesde: 0, mesHasta: D.meses.length - 1, tipo: -1, sistema: -1, usuario: -1, equipo: -1 };
+
+/* ---------- Filtros ---------- */
+function llenarSelect(id, valores, conTodos, etiqueta) {
+  const sel = document.getElementById(id);
+  sel.replaceChildren();
+  if (conTodos) sel.append(new Option("Todos", "-1"));
+  valores.forEach((v, i) => sel.append(new Option(etiqueta ? etiqueta(v) : v, String(i))));
+  return sel;
+}
+function ordenAlfabetico(lista) {
+  return lista.map((v, i) => [v, i]).sort((a, b) => a[0].localeCompare(b[0], "es"));
+}
+function llenarSelectOrdenado(id, lista) {
+  const sel = document.getElementById(id);
+  sel.replaceChildren(new Option("Todos", "-1"));
+  ordenAlfabetico(lista).forEach(([v, i]) => sel.append(new Option(v, String(i))));
+}
+llenarSelect("fMesDesde", D.meses, false, etiquetaMes).value = "0";
+llenarSelect("fMesHasta", D.meses, false, etiquetaMes).value = String(D.meses.length - 1);
+llenarSelectOrdenado("fTipo", D.tipos);
+llenarSelectOrdenado("fSistema", D.sistemas);
+llenarSelectOrdenado("fUsuario", D.usuarios);
+llenarSelectOrdenado("fEquipo", D.equipos);
+
+const mapaFiltros = { fMesDesde: "mesDesde", fMesHasta: "mesHasta", fTipo: "tipo", fSistema: "sistema", fUsuario: "usuario", fEquipo: "equipo" };
+Object.entries(mapaFiltros).forEach(([id, clave]) => {
+  document.getElementById(id).addEventListener("change", (ev) => {
+    estado[clave] = Number(ev.target.value);
+    if (estado.mesDesde > estado.mesHasta) {
+      if (clave === "mesDesde") estado.mesHasta = estado.mesDesde; else estado.mesDesde = estado.mesHasta;
+    }
+    sincronizarSelects();
+    actualizar();
+  });
+});
+document.getElementById("limpiar").addEventListener("click", () => {
+  Object.assign(estado, { mesDesde: 0, mesHasta: D.meses.length - 1, tipo: -1, sistema: -1, usuario: -1, equipo: -1 });
+  sincronizarSelects();
+  actualizar();
+});
+function sincronizarSelects() {
+  Object.entries(mapaFiltros).forEach(([id, clave]) => { document.getElementById(id).value = String(estado[clave]); });
+}
+function alternarFiltro(clave, valor) {
+  estado[clave] = estado[clave] === valor ? -1 : valor;
+  sincronizarSelects();
+  actualizar();
+}
+
+/* ---------- Agregación (equivalente a las medidas DAX) ---------- */
+function calcular(ignorar) {  // ignorar: dimensión que no se filtra (el visual de origen resalta en vez de filtrarse)
+  const nMes = D.meses.length, nTipo = D.tipos.length, nUsu = D.usuarios.length, nAcc = D.acciones.length;
+  const tickets = new Set(), resueltos = new Set();
+  const mesTickets = Array.from({ length: nMes }, () => new Set()), mesHoras = new Array(nMes).fill(0);
+  const tipoTickets = Array.from({ length: nTipo }, () => new Set()), tipoHoras = new Array(nTipo).fill(0);
+  const usuTickets = Array.from({ length: nUsu }, () => new Set()), usuHoras = new Array(nUsu).fill(0);
+  const matriz = new Map();
+  let horas = 0, registros = 0;
+  for (let i = 0; i < N; i++) {
+    const m = D.m[i];
+    if (m < estado.mesDesde || m > estado.mesHasta) continue;
+    if (ignorar !== "tipo" && estado.tipo >= 0 && D.t[i] !== estado.tipo) continue;
+    if (estado.sistema >= 0 && D.s[i] !== estado.sistema) continue;
+    if (ignorar !== "usuario" && estado.usuario >= 0 && D.u[i] !== estado.usuario) continue;
+    if (estado.equipo >= 0 && D.e[i] !== estado.equipo) continue;
+    const c = D.c[i], h = D.h[i];
+    registros++; horas += h; tickets.add(c);
+    if (D.r[i] === 1) resueltos.add(c);
+    mesTickets[m].add(c); mesHoras[m] += h;
+    tipoTickets[D.t[i]].add(c); tipoHoras[D.t[i]] += h;
+    usuTickets[D.u[i]].add(c); usuHoras[D.u[i]] += h;
+    const k = D.a[i] * nUsu + D.u[i];
+    const celda = matriz.get(k) || { h: 0, n: 0 };
+    celda.h += h; celda.n++;
+    matriz.set(k, celda);
+  }
+  return { tickets: tickets.size, resueltos: resueltos.size, horas, registros,
+           mesTickets: mesTickets.map((s) => s.size), mesHoras,
+           tipoTickets: tipoTickets.map((s) => s.size), tipoHoras,
+           usuTickets: usuTickets.map((s) => s.size), usuHoras, matriz, nAcc, nUsu };
+}
+
+/* ---------- Tema y gráficos ---------- */
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let charts = {};
+function crearCharts() {
+  Object.values(charts).forEach((c) => c.dispose());
+  charts = {};
+  ["chTickets", "chHoras", "chTipo", "chUsuario", "chMatriz"].forEach((id) => {
+    charts[id] = echarts.init(document.getElementById(id), null, { renderer: "svg" });
+  });
+  charts.chTipo.on("click", (p) => alternarFiltro("tipo", p.data.idx));
+  charts.chUsuario.on("click", (p) => alternarFiltro("usuario", p.data.idx));
+}
+function tooltipBase() {
+  return {
+    backgroundColor: css("--surface"), borderColor: css("--border"), borderWidth: 1,
+    textStyle: { color: css("--text"), fontSize: 12 }, extraCssText: "border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.12);",
+  };
+}
+function ejes() {
+  return {
+    axisLine: { lineStyle: { color: css("--axis") } }, axisTick: { show: false },
+    axisLabel: { color: css("--text-2"), fontSize: 11 }, splitLine: { lineStyle: { color: css("--grid"), width: 1 } },
+  };
+}
+function filaTooltip(color, etiqueta, valor) {
+  return `<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:12px;height:2px;background:${color}"></span>` +
+         `<strong style="font-size:13px">${valor}</strong><span style="color:${css("--text-2")}">${esc(etiqueta)}</span></div>`;
+}
+
+function opcionLinea(valores, etiqueta, formato, color) {
+  const meses = D.meses.slice(estado.mesDesde, estado.mesHasta + 1);
+  const datos = valores.slice(estado.mesDesde, estado.mesHasta + 1);
+  const ultimo = datos.length - 1;
+  return {
+    animationDuration: 300,
+    grid: { left: 52, right: 28, top: 24, bottom: 30 },
+    tooltip: { ...tooltipBase(), trigger: "axis",
+      axisPointer: { type: "line", lineStyle: { color: css("--axis"), width: 1 } },
+      formatter: (ps) => `<div style="color:${css("--text-2")};margin-bottom:4px">${etiquetaMes(meses[ps[0].dataIndex])}</div>` +
+                         filaTooltip(color, etiqueta, formato(ps[0].value)) },
+    xAxis: { type: "category", data: meses.map(etiquetaMes), boundaryGap: false, ...ejes(), splitLine: { show: false } },
+    yAxis: { type: "value", min: 0, minInterval: 1, ...ejes(), axisLine: { show: false }, axisLabel: { color: css("--text-2"), fontSize: 11, formatter: (v) => fmt0.format(v) } },
+    series: [{
+      type: "line", data: datos, smooth: false, symbol: "circle", symbolSize: 8,
+      lineStyle: { width: 2, color }, itemStyle: { color, borderColor: css("--surface"), borderWidth: 2 },
+      areaStyle: { color, opacity: 0.08 },
+      label: { show: true, position: "top", color: css("--text"), fontSize: 11, fontWeight: 600,
+               formatter: (p) => (p.dataIndex === ultimo || p.value === Math.max(...datos)) ? formato(p.value) : "" },
+    }],
+  };
+}
+
+function opcionTipo(r, totalFiltrado = r.tickets) {
+  const colores = [css("--s1"), css("--s2"), css("--s3"), css("--s4")];
+  // Orden y color fijos por tipo (el color sigue a la categoría, no a su ranking del filtro)
+  const orden = D.tiposOrdenColor.map((t) => D.tipos.indexOf(t));
+  const total = r.tickets || 1;
+  const datos = orden.filter((i) => r.tipoTickets[i] > 0).map((i) => ({
+    name: D.tipos[i], value: r.tipoTickets[i], idx: i,
+    itemStyle: { color: colores[D.tiposOrdenColor.indexOf(D.tipos[i])], opacity: estado.tipo < 0 || estado.tipo === i ? 1 : 0.35 },
+  }));
+  const conEtiquetas = document.getElementById("chTipo").clientWidth >= 480;  // en móvil: leyenda + tabla
+  return {
+    animationDuration: 300,
+    tooltip: { ...tooltipBase(), trigger: "item",
+      formatter: (p) => filaTooltip(p.color, p.name, `${fmt0.format(p.value)} tickets · ${pct1.format(p.value / total)}`) },
+    legend: { bottom: 0, icon: "rect", itemWidth: 12, itemHeight: 12, textStyle: { color: css("--text-2") } },
+    series: [{
+      type: "pie", radius: ["50%", "74%"], center: ["50%", "45%"], padAngle: 1.5,
+      itemStyle: { borderRadius: 4, borderColor: css("--surface"), borderWidth: 2 },
+      label: { show: conEtiquetas, color: css("--text"), fontSize: 12, formatter: (p) => `${p.name}  ${fmt0.format(p.value)} (${pct1.format(p.value / total)})` },
+      labelLine: { show: conEtiquetas, lineStyle: { color: css("--axis") } },
+      data: datos,
+    }],
+    graphic: [{ type: "text", left: "center", top: "39%", style: { text: fmt0.format(totalFiltrado), fill: css("--text"), fontSize: 22, fontWeight: 650, align: "center" } },
+              { type: "text", left: "center", top: "49%", style: { text: "tickets", fill: css("--text-2"), fontSize: 12, align: "center" } }],
+  };
+}
+
+function opcionUsuario(r) {
+  const puntos = D.usuarios.map((u, i) => ({ u, i, t: r.usuTickets[i], h: r.usuHoras[i] })).filter((p) => p.t > 0);
+  const angosto = document.getElementById("chUsuario").clientWidth < 480;  // en móvil: menos etiquetas (la tabla tiene el detalle)
+  const porTickets = [...puntos].sort((a, b) => b.t - a.t).slice(0, angosto ? 1 : 3).map((p) => p.i);
+  const porRatio = [...puntos].sort((a, b) => b.h / b.t - a.h / a.t).slice(0, angosto ? 1 : 2).map((p) => p.i);
+  const etiquetados = new Set([...porTickets, ...porRatio, estado.usuario]);
+  // Si dos puntos etiquetados quedan muy cerca, el segundo lleva la etiqueta debajo
+  const maxT = Math.max(1, ...puntos.map((p) => p.t)), maxH = Math.max(1, ...puntos.map((p) => p.h));
+  const posicion = {};
+  const yaUbicados = [];
+  puntos.filter((p) => etiquetados.has(p.i)).sort((a, b) => b.t - a.t).forEach((p) => {
+    const cerca = yaUbicados.some((q) => Math.abs(q.t - p.t) / maxT < 0.12 && Math.abs(q.h - p.h) / maxH < 0.12);
+    posicion[p.i] = cerca ? "bottom" : (p.t > 0.8 * maxT ? "top" : "right");
+    yaUbicados.push(p);
+  });
+  const color = css("--s1");
+  return {
+    animationDuration: 300,
+    grid: { left: 58, right: 30, top: 20, bottom: 44 },
+    tooltip: { ...tooltipBase(), trigger: "item",
+      formatter: (p) => `<div style="margin-bottom:4px"><strong>${esc(p.data.name)}</strong></div>` +
+        `<div>${fmt0.format(p.data.value[0])} tickets</div><div>${fmt1.format(p.data.value[1])} horas</div>` +
+        `<div style="color:${css("--text-2")}">${fmt1.format(p.data.value[1] / p.data.value[0])} h por ticket</div>` },
+    xAxis: { type: "value", name: "Q Tickets", nameLocation: "middle", nameGap: 28, nameTextStyle: { color: css("--text-2") }, min: 0, ...ejes() },
+    yAxis: { type: "value", name: "Q Horas", nameLocation: "middle", nameGap: 44, nameTextStyle: { color: css("--text-2") }, min: 0, ...ejes(),
+             axisLabel: { color: css("--text-2"), fontSize: 11, formatter: (v) => fmt0.format(v) } },
+    series: [{
+      type: "scatter", symbolSize: (v, p) => (p.data.idx === estado.usuario ? 15 : 11),
+      itemStyle: { color, borderColor: css("--surface"), borderWidth: 2 },
+      emphasis: { scale: 1.3, itemStyle: { borderColor: css("--text"), borderWidth: 2 } },
+      label: { show: true, silent: true, position: "right", color: css("--text"), fontSize: 11, formatter: (p) => (etiquetados.has(p.data.idx) ? p.data.name : "") },
+      labelLayout: { hideOverlap: true },
+      data: puntos.map((p) => ({ name: p.u, idx: p.i, value: [p.t, p.h],
+        label: { position: posicion[p.i] || "right" },
+        itemStyle: p.i === estado.usuario ? { borderColor: css("--text"), borderWidth: 2 } : (estado.usuario >= 0 ? { opacity: 0.35 } : undefined) })),
+    }],
+  };
+}
+
+function opcionMatriz(r) {
+  const usuarios = D.usuarios.map((u, i) => i).filter((i) => r.usuHoras[i] > 0).sort((a, b) => r.usuHoras[b] - r.usuHoras[a]);
+  const acciones = D.acciones.map((a, i) => i).filter((ai) => usuarios.some((ui) => r.matriz.has(ai * r.nUsu + ui)));
+  const datos = [];
+  let max = 0;
+  acciones.forEach((ai, y) => usuarios.forEach((ui, x) => {
+    const celda = r.matriz.get(ai * r.nUsu + ui);
+    if (celda) { datos.push([x, y, Math.round(celda.h * 10) / 10, celda.n]); max = Math.max(max, celda.h); }
+  }));
+  const estrecho = document.getElementById("chMatriz").clientWidth < 700;
+  return {
+    animationDuration: 300,
+    grid: { left: estrecho ? 150 : 210, right: 16, top: 44, bottom: estrecho ? 120 : 96 },
+    tooltip: { ...tooltipBase(), trigger: "item",
+      formatter: (p) => `<div style="color:${css("--text-2")}">${esc(D.acciones[acciones[p.data[1]]])}</div>` +
+        `<div><strong>${esc(D.usuarios[usuarios[p.data[0]]])}</strong></div>` +
+        `<div><strong style="font-size:13px">${fmt1.format(p.data[2])} h</strong> <span style="color:${css("--text-2")}">· ${fmt0.format(p.data[3])} registros</span></div>` },
+    xAxis: { type: "category", data: usuarios.map((i) => D.usuarios[i]), ...ejes(), splitLine: { show: false },
+             axisLabel: { color: css("--text-2"), fontSize: 10.5, rotate: 50, interval: 0 } },
+    yAxis: { type: "category", data: acciones.map((i) => D.acciones[i]), inverse: true, ...ejes(), splitLine: { show: false },
+             axisLabel: { color: css("--text-2"), fontSize: 10.5, interval: 0, width: estrecho ? 140 : 200, overflow: "truncate" } },
+    visualMap: { show: true, type: "continuous", orient: "horizontal", right: 16, top: 0, itemWidth: 12, itemHeight: 160,
+                 calculable: false, text: [fmt0.format(max) + " h", "0 h"], textGap: 8, textStyle: { color: css("--text-2"), fontSize: 11 },
+                 min: 0, max: max || 1, dimension: 2,
+                 inRange: { color: [css("--seq-0"), css("--seq-1"), css("--seq-2"), css("--seq-3"), css("--seq-4"), css("--seq-5")] } },
+    dataZoom: estrecho && usuarios.length > 8 ? [
+      { type: "slider", xAxisIndex: 0, startValue: 0, endValue: 7, height: 16, bottom: 6, showDetail: false, brushSelect: false },
+      { type: "inside", xAxisIndex: 0, zoomOnMouseWheel: false, moveOnMouseMove: true, preventDefaultMouseMove: false }] : [],
+    series: [{ type: "heatmap", data: datos, itemStyle: { borderColor: css("--surface"), borderWidth: 2, borderRadius: 2 },
+               emphasis: { itemStyle: { borderColor: css("--text"), borderWidth: 1.5 } } }],
+  };
+}
+
+/* ---------- Tablas (vista accesible de cada gráfico) ---------- */
+function tabla(destino, cabeceras, filas) {
+  const t = document.createElement("table");
+  const thead = t.createTHead().insertRow();
+  cabeceras.forEach(([texto, num]) => { const th = document.createElement("th"); th.textContent = texto; if (num) th.className = "n"; thead.append(th); });
+  const tb = t.createTBody();
+  filas.forEach((fila) => {
+    const tr = tb.insertRow();
+    fila.forEach((v, j) => { const td = tr.insertCell(); td.textContent = v; if (cabeceras[j][1]) td.className = "n"; });
+  });
+  document.getElementById(destino).replaceChildren(t);
+}
+
+/* ---------- Render ---------- */
+function actualizar() {
+  const r = calcular();
+  document.getElementById("kTickets").textContent = fmt0.format(r.tickets);
+  document.getElementById("cTickets").textContent = `${fmt0.format(r.registros)} registros de horas`;
+  document.getElementById("kHoras").textContent = fmt0.format(r.horas);
+  document.getElementById("cHoras").textContent = "horas invertidas";
+  document.getElementById("kProm").textContent = r.tickets ? fmt2.format(r.horas / r.tickets) : "–";
+  document.getElementById("cProm").textContent = "horas por ticket";
+  document.getElementById("kRes").textContent = r.tickets ? pct1.format(r.resueltos / r.tickets) : "–";
+  document.getElementById("cRes").textContent = `${fmt0.format(r.resueltos)} tickets cerrados o resueltos`;
+
+  charts.chTickets.setOption(opcionLinea(r.mesTickets, "Q Tickets", (v) => fmt0.format(v), css("--s1")), true);
+  charts.chHoras.setOption(opcionLinea(r.mesHoras, "Q Horas", (v) => fmt0.format(v), css("--s1")), true);
+  const rTipo = estado.tipo >= 0 ? calcular("tipo") : r;       // el anillo resalta su Tipo, no se filtra
+  const rUsu = estado.usuario >= 0 ? calcular("usuario") : r;   // la dispersión resalta su Usuario, no se filtra
+  charts.chTipo.setOption(opcionTipo(rTipo, r.tickets), true);
+  charts.chUsuario.setOption(opcionUsuario(rUsu), true);
+  charts.chMatriz.setOption(opcionMatriz(r), true);
+
+  const rango = [];
+  for (let m = estado.mesDesde; m <= estado.mesHasta; m++) rango.push(m);
+  tabla("tbTendencia", [["Mes"], ["Q Tickets", 1], ["Q Horas", 1], ["Horas x Ticket", 1]],
+        rango.map((m) => [etiquetaMes(D.meses[m]), fmt0.format(r.mesTickets[m]), fmt1.format(r.mesHoras[m]),
+                          r.mesTickets[m] ? fmt2.format(r.mesHoras[m] / r.mesTickets[m]) : "–"]));
+  tabla("tbTipo", [["Tipo"], ["Q Tickets", 1], ["% Tickets", 1], ["Q Horas", 1], ["Horas x Ticket", 1]],
+        D.tipos.map((t, i) => i).filter((i) => rTipo.tipoTickets[i] > 0).sort((a, b) => rTipo.tipoTickets[b] - rTipo.tipoTickets[a])
+          .map((i) => [D.tipos[i], fmt0.format(rTipo.tipoTickets[i]), pct1.format(rTipo.tipoTickets[i] / rTipo.tickets), fmt1.format(rTipo.tipoHoras[i]),
+                       fmt2.format(rTipo.tipoHoras[i] / rTipo.tipoTickets[i])]));
+  tabla("tbUsuario", [["Usuario"], ["Q Tickets", 1], ["Q Horas", 1], ["Horas x Ticket", 1]],
+        D.usuarios.map((u, i) => i).filter((i) => rUsu.usuTickets[i] > 0).sort((a, b) => rUsu.usuTickets[b] - rUsu.usuTickets[a])
+          .map((i) => [D.usuarios[i], fmt0.format(rUsu.usuTickets[i]), fmt1.format(rUsu.usuHoras[i]), fmt2.format(rUsu.usuHoras[i] / rUsu.usuTickets[i])]));
+  const filasMatriz = [];
+  r.matriz.forEach((celda, k) => filasMatriz.push([D.acciones[Math.floor(k / r.nUsu)], D.usuarios[k % r.nUsu], celda.n, celda.h]));
+  filasMatriz.sort((a, b) => b[3] - a[3]);
+  tabla("tbMatriz", [["Acción"], ["Usuario"], ["Registros", 1], ["Q Horas", 1]],
+        filasMatriz.map((f) => [f[0], f[1], fmt0.format(f[2]), fmt1.format(f[3])]));
+}
+
+/* ---------- Tema: auto (sistema) -> claro -> oscuro ---------- */
+const modos = ["auto", "light", "dark"], nombres = { auto: "auto", light: "claro", dark: "oscuro" };
+let modo = "auto";
+try { modo = localStorage.getItem("tema-dashboard") || "auto"; } catch (e) { /* almacenamiento no disponible */ }
+function aplicarTema() {
+  if (modo === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", modo);
+  document.getElementById("tema").textContent = "Tema: " + nombres[modo];
+  document.getElementById("tema").setAttribute("aria-label", "Tema: " + nombres[modo] + " (cambiar)");
+  crearCharts();
+  actualizar();
+}
+document.getElementById("tema").addEventListener("click", () => {
+  modo = modos[(modos.indexOf(modo) + 1) % modos.length];
+  try { localStorage.setItem("tema-dashboard", modo); } catch (e) { /* sin persistencia */ }
+  aplicarTema();
+});
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (modo === "auto") aplicarTema(); });
+let pendiente;
+window.addEventListener("resize", () => {
+  clearTimeout(pendiente);
+  pendiente = setTimeout(() => { Object.values(charts).forEach((c) => c.resize()); actualizar(); }, 150);
+});
+aplicarTema();
+</script>
+</body>
+</html>
