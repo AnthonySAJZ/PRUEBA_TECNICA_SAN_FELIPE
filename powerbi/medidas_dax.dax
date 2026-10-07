@@ -97,16 +97,23 @@ DIVIDE ( [Q Horas Backlog Anterior 2026], [Q Horas] )
 
 // ---------------------------------------------------------------------------
 // 3. INTELIGENCIA DE TIEMPO (requiere la tabla Calendario relacionada)
+//    Solo tienen sentido con un único mes en contexto; sin él devuelven vacío.
 // ---------------------------------------------------------------------------
 
 Q Tickets Mes Anterior =
-CALCULATE ( [Q Tickets], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+IF (
+    HASONEVALUE ( Calendario[AnioMes] ),
+    CALCULATE ( [Q Tickets], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+)
 
 Var % Q Tickets MoM =
 DIVIDE ( [Q Tickets] - [Q Tickets Mes Anterior], [Q Tickets Mes Anterior] )
 
 Q Horas Mes Anterior =
-CALCULATE ( [Q Horas], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+IF (
+    HASONEVALUE ( Calendario[AnioMes] ),
+    CALCULATE ( [Q Horas], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+)
 
 Var % Q Horas MoM =
 DIVIDE ( [Q Horas] - [Q Horas Mes Anterior], [Q Horas Mes Anterior] )
@@ -116,6 +123,8 @@ DIVIDE ( [Q Horas] - [Q Horas Mes Anterior], [Q Horas Mes Anterior] )
 // 4. TABLA CALCULADA: Calendario
 //    Modelado > Nueva tabla. Luego: marcar como tabla de fechas y crear la
 //    relación Calendario[Fecha] 1 --- * Requerimientos[FechaRegistro].
+//    Cubre del primer al último mes con datos; NombreMes en español ("Ene 2026")
+//    sin depender de la configuración regional del modelo.
 // ---------------------------------------------------------------------------
 
 Calendario =
@@ -123,12 +132,17 @@ VAR FechaMin = MIN ( Requerimientos[FechaRegistro] )
 VAR FechaMax = MAX ( Requerimientos[FechaRegistro] )
 RETURN
     SELECTCOLUMNS (
-        CALENDAR ( DATE ( YEAR ( FechaMin ), 1, 1 ), DATE ( YEAR ( FechaMax ), 12, 31 ) ),
+        CALENDAR ( DATE ( YEAR ( FechaMin ), MONTH ( FechaMin ), 1 ), EOMONTH ( FechaMax, 0 ) ),
         "Fecha", [Date],
         "Anio", YEAR ( [Date] ),
         "Mes", MONTH ( [Date] ),
         "AnioMes", FORMAT ( [Date], "yyyy-mm" ),
-        "NombreMes", FORMAT ( [Date], "mmm yyyy" ),
+        "NombreMes",
+            SWITCH (
+                MONTH ( [Date] ),
+                1, "Ene", 2, "Feb", 3, "Mar", 4, "Abr", 5, "May", 6, "Jun",
+                7, "Jul", 8, "Ago", 9, "Set", 10, "Oct", 11, "Nov", 12, "Dic"
+            ) & " " & YEAR ( [Date] ),
         "DiaSemana", WEEKDAY ( [Date], 2 )
     )
 // Ordenar la columna NombreMes por AnioMes (Herramientas de columna > Ordenar por columna).

@@ -7,18 +7,25 @@ MÓDULO 4: genera el proyecto de Power BI en formato PBIP.
     powerbi/pbip/Dashboard_Requerimientos.Report/          reporte en formato PBIR
 
 El proyecto se abre con Power BI Desktop (Windows) haciendo doble clic en el
-.pbip. Antes de actualizar, ajustar el parámetro RutaArchivoCSV a la ruta local
-del CSV limpio (Transformar datos > Editar parámetros). Ver GUIA_POWER_BI.md.
+.pbip. Abre sin datos (no se versiona cache.abf): ajustar el parámetro
+RutaArchivoCSV a la ruta local del CSV limpio (Transformar datos > Editar
+parámetros) y pulsar Actualizar. Pasos completos en powerbi/GUIA_POWER_BI.md.
 
 Los identificadores (lineageTag, logicalId) se derivan con uuid5 de nombres
 fijos: regenerar el proyecto produce exactamente los mismos archivos.
 
 Uso:
     python python/generar_pbip.py
+    python python/generar_pbip.py --ruta-csv "D:\\Repos\\PRUEBA\\data\\clean\\RequerimientosPruebaDatos_Limpio.csv"
+
+Al regenerar se reemplazan solo los archivos que crea este script; se conserva
+lo que agrega Power BI Desktop (.pbi/cache.abf, .pbi/localSettings.json).
 """
 
 from __future__ import annotations
 
+import argparse
+import csv
 import json
 import shutil
 import uuid
@@ -26,6 +33,7 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
 SALIDA = RAIZ / "powerbi" / "pbip"
+CSV_LIMPIO = RAIZ / "data" / "clean" / "RequerimientosPruebaDatos_Limpio.csv"
 TEMA_BASE = RAIZ / "powerbi" / "recursos" / "CY24SU10.json"
 
 NOMBRE = "Dashboard_Requerimientos"
@@ -142,12 +150,16 @@ RETURN
     KEEPFILTERS ( Requerimientos[AnioTicket] < 2026 )
 )""", "#,0", "Apoyo", "Horas registradas en tickets abiertos antes de 2026."),
     ("% Horas Backlog", "DIVIDE ( [Q Horas Backlog Anterior 2026], [Q Horas] )", "0.0%", "Apoyo", None),
-    ("Q Tickets Mes Anterior", "CALCULATE ( [Q Tickets], DATEADD ( Calendario[Fecha], -1, MONTH ) )",
-     "#,0", "Inteligencia de tiempo", None),
+    ("Q Tickets Mes Anterior", """IF (
+    HASONEVALUE ( Calendario[AnioMes] ),
+    CALCULATE ( [Q Tickets], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+)""", "#,0", "Inteligencia de tiempo", "Tickets del mes anterior; solo tiene sentido con un único mes en contexto."),
     ("Var % Q Tickets MoM", "DIVIDE ( [Q Tickets] - [Q Tickets Mes Anterior], [Q Tickets Mes Anterior] )",
      "0.0%", "Inteligencia de tiempo", None),
-    ("Q Horas Mes Anterior", "CALCULATE ( [Q Horas], DATEADD ( Calendario[Fecha], -1, MONTH ) )",
-     "#,0", "Inteligencia de tiempo", None),
+    ("Q Horas Mes Anterior", """IF (
+    HASONEVALUE ( Calendario[AnioMes] ),
+    CALCULATE ( [Q Horas], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+)""", "#,0", "Inteligencia de tiempo", "Horas del mes anterior; solo tiene sentido con un único mes en contexto."),
     ("Var % Q Horas MoM", "DIVIDE ( [Q Horas] - [Q Horas Mes Anterior], [Q Horas Mes Anterior] )",
      "0.0%", "Inteligencia de tiempo", None),
 ]
@@ -238,8 +250,11 @@ def bloque_columna(tabla: str, nombre: str, tipo: str, patron: str, calculada: b
 
 def tmdl_requerimientos() -> str:
     partes = [f"table Requerimientos\n{T}lineageTag: {gid('tabla', 'Requerimientos')}\n"]
+    # Las columnas de fecha de la tabla de hechos se ocultan: los visuales y las
+    # medidas de tiempo deben usar Calendario (siguen disponibles para DAX).
+    ocultas = {"FechaRegistro", "Anio", "Mes", "AnioMes"}
     for nombre, _, tipo, patron in COLUMNAS_REQ + [("AnioTicket", "Int64.Type", "int64", "id")]:
-        partes.append(bloque_columna("Requerimientos", nombre, tipo, patron))
+        partes.append(bloque_columna("Requerimientos", nombre, tipo, patron, oculta=nombre in ocultas))
     partes.append(f"{T}partition Requerimientos = m\n{T*2}mode: import\n{T*2}source =\n"
                   f"{indentar(m_requerimientos(), 4)}\n")
     partes.append(f"{T}annotation PBI_ResultType = Table\n")
@@ -289,7 +304,7 @@ def tmdl_medidas() -> str:
     return "\n".join(partes) + "\n"
 
 
-def generar_modelo(base: Path) -> None:
+def generar_modelo(base: Path, ruta_csv: str) -> None:
     d = base / "definition"
     escribir(d / "database.tmdl", f"database\n{T}compatibilityLevel: 1601\n{T}compatibilityMode: powerBI\n\n")
     escribir(d / "model.tmdl", "\n".join([
@@ -317,7 +332,7 @@ def generar_modelo(base: Path) -> None:
         "", "",
     ]))
     escribir(d / "expressions.tmdl",
-             f'expression RutaArchivoCSV = "{RUTA_CSV_DEFECTO}" meta [IsParameterQuery=true, Type="Text", '
+             f'expression RutaArchivoCSV = "{ruta_csv}" meta [IsParameterQuery=true, Type="Text", '
              f'IsParameterQueryRequired=true]\n{T}lineageTag: {gid("expresion", "RutaArchivoCSV")}\n\n'
              f"{T}annotation PBI_ResultType = Text\n\n")
     escribir(d / "relationships.tmdl",
@@ -388,7 +403,7 @@ def proyeccion(campo: dict, activo: bool = False, etiqueta: str | None = None) -
     tipo = "Column" if "Column" in campo else "Measure"
     entidad = campo[tipo]["Expression"]["SourceRef"]["Entity"]
     propiedad = campo[tipo]["Property"]
-    p = {"field": campo, "queryRef": f"{entidad}.{propiedad}", "nativeQueryRef": propiedad}
+    p = {"field": campo, "queryRef": f"{entidad}.{propiedad}", "nativeQueryRef": etiqueta or propiedad}
     if etiqueta:
         p["displayName"] = etiqueta
     if activo:
@@ -463,7 +478,9 @@ def visual_linea(nombre_medida: str, titulo: str) -> dict:
             "sortDefinition": {"sort": [{"field": eje, "direction": "Ascending"}]},
         },
         "objects": {
-            "labels": [{"properties": {"show": lit("true")}}],
+            # Unidades "ninguna": con Auto, 2,378 h se mostraría como "2K"
+            "labels": [{"properties": {"show": lit("true"), "labelDisplayUnits": lit("1D"),
+                                       "labelPrecision": lit("0L")}}],
             "lineStyles": [{"properties": {"showMarker": lit("true")}}],
             "categoryAxis": [{"properties": {"showAxisTitle": lit("false")}}],
             "valueAxis": [{"properties": {"showAxisTitle": lit("false")}}],
@@ -489,7 +506,9 @@ def visual_anillo() -> dict:
         "objects": {
             "legend": [{"properties": {"show": lit("true"), "position": texto_lit("Bottom")}}],
             "labels": [{"properties": {"show": lit("true"),
-                                       "labelStyle": texto_lit("Category, data value, percent of total")}}],
+                                       "labelStyle": texto_lit("Category, data value, percent of total"),
+                                       "labelDisplayUnits": lit("1D"),
+                                       "percentageLabelPrecision": lit("1L")}}],
             "dataPoint": colores,
         },
         "visualContainerObjects": titulo_visual("Q Tickets por tipo"),
@@ -544,7 +563,7 @@ def visual_matriz() -> dict:
     }
 
 
-ANCHO_PAGINA, ALTO_PAGINA = 1280, 1180
+ANCHO_PAGINA, ALTO_PAGINA = 1280, 1500  # página vertical, "Ajustar al ancho"
 
 
 def visuales_dashboard() -> list[dict]:
@@ -566,7 +585,7 @@ def visuales_dashboard() -> list[dict]:
     v.append(contenedor("lineaHorasMes", 11, 646, 250, 618, 250, visual_linea("Q Horas", "Tendencia: Q Horas por mes")))
     v.append(contenedor("anilloTicketsTipo", 12, 16, 512, 420, 300, visual_anillo()))
     v.append(contenedor("dispersionUsuarios", 13, 448, 512, 816, 300, visual_dispersion()))
-    v.append(contenedor("matrizAccionUsuario", 14, 16, 824, 1248, 340, visual_matriz()))
+    v.append(contenedor("matrizAccionUsuario", 14, 16, 824, 1248, 660, visual_matriz()))
     return v
 
 
@@ -599,6 +618,8 @@ def generar_reporte(base: Path) -> None:
         "settings": {
             "useStylableVisualContainerHeader": True,
             "exportDataMode": "AllowSummarized",
+            # clic en un visual = filtrar los demás (no resaltar), igual que el dashboard HTML
+            "defaultFilterActionIsDataFilter": True,
             "defaultDrillFilterOtherVisuals": True,
             "allowChangeFilterTypes": True,
             "useEnhancedTooltips": True,
@@ -623,10 +644,50 @@ def generar_reporte(base: Path) -> None:
     shutil.copyfile(TEMA_BASE, tema)
 
 
+LEEME = """# Proyecto Power BI (PBIP)
+
+Abrir `Dashboard_Requerimientos.pbip` con Power BI Desktop (agosto 2025 o posterior).
+
+1. El reporte abre **sin datos** (el proyecto no versiona `cache.abf`).
+2. Inicio > Transformar datos (flecha) > **Editar parámetros** > `RutaArchivoCSV` = ruta
+   absoluta de `data\\clean\\RequerimientosPruebaDatos_Limpio.csv` en tu equipo > Aceptar > Aplicar cambios.
+3. Inicio > **Actualizar**.
+4. Comprobar los valores de control: Q Tickets 3,406 · Q Horas 16,979 · Promedio Horas x Ticket 4.98 · % Resueltos 98.4%.
+
+Detalle, requisitos y solución de problemas: `../GUIA_POWER_BI.md`.
+Este proyecto lo genera `python/generar_pbip.py`; no editar a mano lo que se vaya a regenerar.
+"""
+
+
+def verificar_encabezado_csv() -> None:
+    """El M fija 25 columnas por nombre: si el CSV limpio cambia, fallar aquí y no en Desktop."""
+    if not CSV_LIMPIO.exists():
+        print(f"Aviso: no existe {CSV_LIMPIO}; no se verificó el encabezado.")
+        return
+    with CSV_LIMPIO.open(encoding="utf-8-sig", newline="") as f:
+        encabezado = next(csv.reader(f))
+    esperado = [c[0] for c in COLUMNAS_REQ]
+    if encabezado != esperado:
+        raise SystemExit(f"El encabezado del CSV no coincide con COLUMNAS_REQ.\nCSV:      {encabezado}\nEsperado: {esperado}")
+
+
+def limpiar_salida() -> None:
+    """Borra solo lo generado; conserva .pbi/cache.abf y .pbi/localSettings.json de Desktop."""
+    for sub in (f"{NOMBRE}.Report/definition", f"{NOMBRE}.SemanticModel/definition",
+                f"{NOMBRE}.Report/StaticResources"):
+        if (SALIDA / sub).exists():
+            shutil.rmtree(SALIDA / sub)
+
+
 def main() -> None:
-    if SALIDA.exists():
-        shutil.rmtree(SALIDA)
-    generar_modelo(SALIDA / f"{NOMBRE}.SemanticModel")
+    parser = argparse.ArgumentParser(description="Genera el proyecto PBIP del dashboard.")
+    parser.add_argument("--ruta-csv", default=RUTA_CSV_DEFECTO,
+                        help="Valor inicial del parámetro RutaArchivoCSV (ruta absoluta en Windows).")
+    args = parser.parse_args()
+
+    verificar_encabezado_csv()
+    limpiar_salida()
+    generar_modelo(SALIDA / f"{NOMBRE}.SemanticModel", args.ruta_csv)
     generar_reporte(SALIDA / f"{NOMBRE}.Report")
     escribir_json(SALIDA / f"{NOMBRE}.pbip", {
         "$schema": ESQUEMA["pbip"],
@@ -635,8 +696,11 @@ def main() -> None:
         "settings": {"enableAutoRecovery": True},
     })
     escribir(SALIDA / ".gitignore", "**/.pbi/localSettings.json\n**/.pbi/cache.abf\n")
+    escribir(SALIDA / "LEEME.md", LEEME)
     archivos = sorted(p for p in SALIDA.rglob("*") if p.is_file())
     print(f"Proyecto PBIP generado en {SALIDA} ({len(archivos)} archivos)")
+    print(f"Parámetro RutaArchivoCSV = {args.ruta_csv}")
+    print("Al abrir en Power BI Desktop: Transformar datos > Editar parámetros (si la ruta difiere) > Actualizar.")
 
 
 if __name__ == "__main__":

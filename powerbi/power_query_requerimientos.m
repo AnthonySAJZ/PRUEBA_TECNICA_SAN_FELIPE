@@ -2,13 +2,13 @@
 // PRUEBA TÉCNICA - ANALISTA DE DATOS
 // MÓDULO 4 - Consulta Power Query (M) para la tabla "Requerimientos"
 // Inicio > Transformar datos > Nueva consulta > Consulta en blanco >
-// Editor avanzado > pegar este código. Cambiar RutaCSV por la ruta local.
+// Editor avanzado > pegar este código. Cambiar RutaArchivoCSV por la ruta local.
 // ============================================================================
 let
-    RutaCSV = "C:\PruebaSanFelipe\data\clean\RequerimientosPruebaDatos_Limpio.csv",
+    RutaArchivoCSV = "C:\PruebaSanFelipe\data\clean\RequerimientosPruebaDatos_Limpio.csv",
 
     Origen = Csv.Document(
-        File.Contents(RutaCSV),
+        File.Contents(RutaArchivoCSV),
         [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]
     ),
     Encabezados = Table.PromoteHeaders(Origen, [PromoteAllScalars = true]),

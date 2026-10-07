@@ -27,7 +27,7 @@
                 }
               },
               "queryRef": "Requerimientos.SistemaCanal",
-              "nativeQueryRef": "SistemaCanal",
+              "nativeQueryRef": "Grupo (Sistema/Canal)",
               "displayName": "Grupo (Sistema/Canal)",
               "active": true
             }

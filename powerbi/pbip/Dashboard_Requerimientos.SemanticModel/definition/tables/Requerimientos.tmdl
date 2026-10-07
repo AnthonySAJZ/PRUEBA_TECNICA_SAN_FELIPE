@@ -69,12 +69,15 @@ table Requerimientos
 
 	column FechaRegistro
 		dataType: dateTime
+		isHidden
 		formatString: dd/mm/yyyy
 		lineageTag: 08fdcb0d-a097-522a-b718-6d58a2ebd84c
 		summarizeBy: none
 		sourceColumn: FechaRegistro
 
 		changedProperty = FormatString
+
+		changedProperty = IsHidden
 
 		annotation SummarizationSetBy = Automatic
 
@@ -84,27 +87,36 @@ table Requerimientos
 
 	column Anio
 		dataType: int64
+		isHidden
 		formatString: 0
 		lineageTag: 6df52ad0-e397-5697-b37a-0ed47efd96f8
 		summarizeBy: none
 		sourceColumn: Anio
 
+		changedProperty = IsHidden
+
 		annotation SummarizationSetBy = User
 
 	column Mes
 		dataType: int64
+		isHidden
 		formatString: 0
 		lineageTag: 6cb80819-77d4-531f-8d03-83a756f85ff0
 		summarizeBy: none
 		sourceColumn: Mes
 
+		changedProperty = IsHidden
+
 		annotation SummarizationSetBy = User
 
 	column AnioMes
 		dataType: string
+		isHidden
 		lineageTag: 8c4c9b93-09ee-50c7-a0ce-8afc4371bef9
 		summarizeBy: none
 		sourceColumn: AnioMes
+
+		changedProperty = IsHidden
 
 		annotation SummarizationSetBy = Automatic
 

@@ -27,7 +27,7 @@
                 }
               },
               "queryRef": "Calendario.NombreMes",
-              "nativeQueryRef": "NombreMes",
+              "nativeQueryRef": "Mes",
               "displayName": "Mes",
               "active": true
             }

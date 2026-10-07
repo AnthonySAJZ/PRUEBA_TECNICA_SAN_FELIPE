@@ -17,7 +17,7 @@ Entregables:
 1. Archivo de datos limpios: `RequerimientosPruebaDatos_Limpio.csv` (y versión `.xlsx` con diccionario y bitácora de limpieza).
 2. Scripts SQL de carga e inspección: `01_creacion_tablas.sql`, `02_ingesta_bulk_insert.sql`, `03_perfilado.sql`, `04_carga_datos_limpios.sql`.
 3. Script de limpieza `limpieza.py` y cuaderno `EDA_Requerimientos.ipynb`.
-4. Dashboard interactivo `Dashboard_Requerimientos.html`, medidas DAX y guía para Power BI.
+4. Proyecto Power BI `Dashboard_Requerimientos.pbip` (o el `.pbix` guardado desde él), dashboard interactivo `Dashboard_Requerimientos.html` y medidas DAX.
 5. Informe ejecutivo `Informe_Ejecutivo.pdf`.
 6. Video explicativo: [enlace al video].
 

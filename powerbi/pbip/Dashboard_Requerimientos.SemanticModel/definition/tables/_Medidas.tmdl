@@ -100,7 +100,12 @@ table _Medidas
 		displayFolder: Apoyo
 		lineageTag: 954113b5-7fce-55f2-8bd7-f55a3a51c009
 
-	measure 'Q Tickets Mes Anterior' = CALCULATE ( [Q Tickets], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+	/// Tickets del mes anterior; solo tiene sentido con un único mes en contexto.
+	measure 'Q Tickets Mes Anterior' =
+			IF (
+			    HASONEVALUE ( Calendario[AnioMes] ),
+			    CALCULATE ( [Q Tickets], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+			)
 		formatString: #,0
 		displayFolder: Inteligencia de tiempo
 		lineageTag: 7978427e-ddff-5316-b0a6-29ee42ca195f
@@ -110,7 +115,12 @@ table _Medidas
 		displayFolder: Inteligencia de tiempo
 		lineageTag: 12226ec7-a7c0-5370-ad64-7e4e01f595eb
 
-	measure 'Q Horas Mes Anterior' = CALCULATE ( [Q Horas], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+	/// Horas del mes anterior; solo tiene sentido con un único mes en contexto.
+	measure 'Q Horas Mes Anterior' =
+			IF (
+			    HASONEVALUE ( Calendario[AnioMes] ),
+			    CALCULATE ( [Q Horas], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+			)
 		formatString: #,0
 		displayFolder: Inteligencia de tiempo
 		lineageTag: 1ca75959-b8f6-53f6-94ea-835740fedf93
