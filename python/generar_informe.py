@@ -2,8 +2,8 @@
 PRUEBA TÉCNICA - ANALISTA DE DATOS
 MÓDULO 5: genera el informe ejecutivo (HTML -> PDF de 2 páginas).
 
-Todas las cifras se calculan desde el archivo limpio del Módulo 2, así el
-informe se puede regenerar si cambian los datos.
+Las cifras se calculan desde el archivo limpio y la bitácora de limpieza del
+Módulo 2, así el informe se puede regenerar si cambian los datos.
 
 Uso:
     python python/generar_informe.py
@@ -111,10 +111,10 @@ def metricas(d: pd.DataFrame) -> dict:
     part_grandes = d[es_grande].groupby("AnioMes")["Horas"].sum() / mes["h"]
     k["pg_ini"], k["pg_fin"] = part_grandes.iat[0], part_grandes.iat[-1]
     # Tickets largos trabajados por una sola persona
-    tecnicos_ticket = d.groupby("Codigo")["Usuario"].nunique()
+    tecnicos_ticket = reales.groupby("Codigo")["Usuario"].nunique()   # sin NO IDENTIFICADO, como '19 técnicos'
     solos = grandes[tecnicos_ticket.reindex(grandes.index) == 1]
     k["n_solo"], k["h_solo"] = len(solos), solos.sum()
-    k["solo_top"] = (d[d["Codigo"].isin(solos.index)].groupby("Usuario")["Codigo"].nunique()
+    k["solo_top"] = (reales[reales["Codigo"].isin(solos.index)].groupby("Usuario")["Codigo"].nunique()
                      .sort_values(ascending=False).head(4))
     pry_tecnicos = d[d["Tipo"] == "PRY"].groupby("Codigo")["Usuario"].nunique()
     k["pry_solo"], k["pry_n"] = int((pry_tecnicos == 1).sum()), len(pry_tecnicos)
@@ -155,6 +155,27 @@ def metricas(d: pd.DataFrame) -> dict:
     inc = d[d["Tipo"] == "INC"].groupby("SistemaCanal")["Codigo"].nunique().sort_values(ascending=False).head(2)
     k["inc_top"] = inc
     k["pct_cerrado_reg"] = (d["Estado"] == "Cerrado").mean()
+    k["top3_sis"] = ", ".join(s.replace("/ ", "/") for s in
+                              d[d["Usuario"].isin(top3.index)].groupby("SistemaCanal")["Codigo"].nunique().nlargest(3).index)
+
+    # Cifras de calidad del dato desde la bitácora de limpieza
+    log = pd.read_csv(LOG, encoding="utf-8-sig")
+    filas = lambda inicio: int(log.loc[log["Problema"].str.startswith(inicio), "FilasAfectadas"].sum())  # noqa: E731
+    k["q_dup"] = int(log.loc[log["Regla"] == "1-Duplicados", "FilasAfectadas"].sum())
+    k["q_fechas"], k["q_ext"], k["q_sinusu"] = filas("Fecha inexistente"), filas("Registro individual"), filas("Usuario vacío")
+    dias_sin_usuario = sorted(pd.to_datetime(d.loc[d["Usuario"] == "NO IDENTIFICADO", "FechaRegistro"]).dt.date.unique())
+    meses_largos = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "setiembre",
+                    "octubre", "noviembre", "diciembre"]
+    if len({f.month for f in dias_sin_usuario}) == 1:
+        nums = [str(f.day) for f in dias_sin_usuario]
+        k["dias_sin_usuario"] = (", ".join(nums[:-1]) + " y " + nums[-1] if len(nums) > 1 else nums[0]) + \
+            f" de {meses_largos[dias_sin_usuario[0].month - 1]}"
+    else:
+        k["dias_sin_usuario"] = ", ".join(f.strftime("%d/%m") for f in dias_sin_usuario)
+    # Registros con algún defecto de origen (sobre el total original, incluidos los duplicados)
+    flags = ["FlagFechaImputada", "FlagHorasImputadas", "FlagHorasAjustadas", "FlagEstadoImputado", "FlagSistemaImputado"]
+    defecto = d[flags].any(axis=1) | (d["Usuario"] == "NO IDENTIFICADO") | (d["Accion"] == "00_No Especificado")
+    k["pct_defectos"] = (defecto.sum() + k["q_dup"]) / (len(d) + k["q_dup"])
     return k
 
 
@@ -207,7 +228,7 @@ def construir_html(k: dict, autor: str | None) -> str:
     linea_autor = f" · {html.escape(autor)}" if autor else ""
     titulo_doc = "Informe ejecutivo · Operación TI" + (f" · {html.escape(autor)}" if autor else "")
     solo_top = ", ".join(f"{u} ({n})" for u, n in k["solo_top"].items())
-    inc_top = " y ".join(k["inc_top"].index)
+    inc_top = " y ".join(s.replace("/ ", "/") for s in k["inc_top"].index)
     inc_top_n = " y ".join(n0(v) for v in k["inc_top"].values)
     mil = " y ".join(f"{c} en {s}" for c, s in k["mil"])
     sistemas_mil = " y ".join(s for _, s in k["mil"])
@@ -255,7 +276,7 @@ def construir_html(k: dict, autor: str | None) -> str:
 
 <h2>1. Principales hallazgos</h2>
 <ul>
-  <li><b>Las horas registradas cubren la jornada.</b> Cada técnico registra en promedio {k["h_dia"]:.1f} h por día trabajado (jornada observada ≈ 9.5 h, la mediana de los propios registros).
+  <li><b>Las horas registradas cubren la jornada.</b> Cada técnico registra en promedio {k["h_dia"]:.1f} h por día trabajado (jornada observada ≈ 9.5 h: la mediana de horas por técnico y día).
       El registro de horas no permite medir holgura: la mejora pasa por cómo se reparte el trabajo, no por sumar horas.</li>
   <li><b>Menos tickets por mes y más horas por ticket.</b> De {etq(k["ini_mes"])} a {etq(k["ult_mes"])} los tickets atendidos bajaron de {n0(k["ini_t"])} a {n0(k["ult_t"])} (−{pct(1 - k["ult_t"] / k["ini_t"])}; pico de {n0(k["pico_t"])} en {etq(k["pico_mes"])})
       y las horas por ticket subieron de {k["hpt_ini"]:.1f} h a {k["hpt_fin"]:.1f} h (+{pct(k["hpt_fin"] / k["hpt_ini"] - 1)}).
@@ -266,8 +287,8 @@ def construir_html(k: dict, autor: str | None) -> str:
       solo tres suman {n0(k["top2024_h"])} h: {top2024}. El REQ 2024-022552 pasó por {k["usuarios_022552"]} técnicos.</li>
   <li><b>La demanda operativa es alta en volumen y baja en esfuerzo.</b> Los incidentes (INC) son el {pct(tipo.loc["INC", "pt"])} de los tickets con {tipo.loc["INC", "hpt"]:.1f} h por ticket;
       el sistema SIC concentra el {pct(k["sic_reg"])} de los registros.</li>
-  <li><b>Calidad del dato mejorable.</b> Se corrigieron 83 registros duplicados, 22 fechas inexistentes (p. ej. 32/11/2026), 55 registros de más de 10 h y 39 registros sin usuario
-      (todos del 16 y 17 de abril). Tras la limpieza, el dataset queda trazable y sin nulos. El estado es una foto al cierre del extracto
+  <li><b>Calidad del dato mejorable.</b> Se corrigieron {k["q_dup"]} registros duplicados, {k["q_fechas"]} fechas inexistentes (p. ej. 32/11/2026), {k["q_ext"]} registros de más de 10 h y {k["q_sinusu"]} registros sin usuario
+      (todos del {k["dias_sin_usuario"]}). Tras la limpieza, el dataset queda trazable y sin nulos. El estado es una foto al cierre del extracto
       ({pct(k["pct_cerrado_reg"])} de los registros figura Cerrado, incluso en tickets que siguieron recibiendo horas): el % Resueltos puede sobreestimar los cierres.</li>
 </ul>
 <div class="fig">{grafico_tendencia(mes)}</div>
@@ -278,7 +299,7 @@ def construir_html(k: dict, autor: str | None) -> str:
 <table>
   <tr><th>Cuello de botella</th><th>Evidencia</th></tr>
   <tr><td><b>Cola operativa en 3 personas</b></td>
-      <td>{", ".join(f"{u} ({n0(r.t)})" for u, r in top3.iterrows())} atienden el {pct(k["top3_pt"])} de los tickets (SIC, APP/WEB, SAP). Una ausencia frena la atención diaria.</td></tr>
+      <td>{", ".join(f"{u} ({n0(r.t)})" for u, r in top3.iterrows())} atienden el {pct(k["top3_pt"])} de los tickets ({k["top3_sis"]}). Una ausencia frena la atención diaria.</td></tr>
   <tr><td><b>Tickets largos en una sola persona</b></td>
       <td>{k["n_solo"]} de los {k["n_grandes"]} tickets de más de 40 h ({n0(k["h_solo"])} h) los trabaja un solo técnico: {solo_top}. {k["pry_solo"]} de los {k["pry_n"]} PRY tienen un solo técnico,
       y en el {k["pry26"]} ({n0(k["pry26_h"])} h) {k["pry26_u"]} aporta el {pct(k["pry26_share"])}.</td></tr>
@@ -288,7 +309,7 @@ def construir_html(k: dict, autor: str | None) -> str:
   <tr><td><b>Grupos {sistemas_mil}</b></td>
       <td>Cada uno sostiene un ticket de más de 1,000 h con horas de enero a junio ({mil}).</td></tr>
   <tr><td><b>Sobrecarga diaria</b></td>
-      <td>{k["dias_12"]} días-técnico con más de 12 h tras acotar registros a 10 h ({k["dias_12_orig"]} con las horas originales); los más frecuentes: {sobre}.</td></tr>
+      <td>{k["dias_12"]} días-técnico con más de 12 h tras acotar registros a 10 h ({k["dias_12_orig"]} con las horas originales, ya sin duplicados); los más frecuentes: {sobre}.</td></tr>
 </table>
 <div class="fig">{grafico_tecnicos(tec)}
 <p class="nota">A la derecha: muchos tickets cortos (JREBAZA, JROSALES, PBARDALES). A la izquierda: pocos tickets de muchas horas.
@@ -308,7 +329,7 @@ La altura refleja sobre todo los días trabajados: quienes se incorporaron duran
 <div class="rec"><div class="t">3. Asegurar la calidad del registro de horas y seguirla cada mes.</div>
   Validar en la herramienta: fecha con calendario, listas cerradas para estado, acción y sistema, usuario obligatorio, tope de 10 h por registro y alerta sobre 12 h por día.
   Publicar el dashboard (medidas DAX del Módulo 4) como tablero mensual del área.
-  <div class="kpi-meta">Meta: menos de 0.5% de registros con defectos · 0 días &gt; 12 h sin justificar.</div></div>
+  <div class="kpi-meta">Meta: menos de 0.5% de registros con defectos (hoy {pct(k["pct_defectos"], 1)}) · 0 días &gt; 12 h sin justificar (hoy {k["dias_12"]}).</div></div>
 </body></html>"""
 
 

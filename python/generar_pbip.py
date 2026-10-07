@@ -142,7 +142,7 @@ RETURN
         Requerimientos[Usuario] <> "NO IDENTIFICADO"
             && CALCULATE ( SUM ( Requerimientos[Horas] ) ) > 12
     )
-)""", "#,0", "Apoyo", "Días-técnico con más de 12 h registradas (se excluye NO IDENTIFICADO)."),
+)""", "#,0", "Apoyo", "Días-técnico con más de 12 h sobre Horas acotadas a 10 h por registro (se excluye NO IDENTIFICADO)."),
     ("% Horas del Total", "DIVIDE ( [Q Horas], CALCULATE ( [Q Horas], ALLSELECTED ( Requerimientos ) ) )",
      "0.0%", "Apoyo", None),
     ("Q Horas Backlog Anterior 2026", """CALCULATE (

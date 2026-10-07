@@ -67,7 +67,7 @@ table _Medidas
 		displayFolder: Apoyo
 		lineageTag: 3790c339-5b67-5ac4-9ae7-4ed1afe536cc
 
-	/// Días-técnico con más de 12 h registradas (se excluye NO IDENTIFICADO).
+	/// Días-técnico con más de 12 h sobre Horas acotadas a 10 h por registro (se excluye NO IDENTIFICADO).
 	measure 'Q Dias Sobrecargados' =
 			COUNTROWS (
 			    FILTER (

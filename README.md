@@ -6,7 +6,7 @@ Resolución de la prueba con el archivo `RequerimientosPruebaDatos.csv`: el cicl
 |---|---:|---:|
 | Registros | 7,158 | **7,075** (83 duplicados retirados) |
 | Tickets únicos | 3,407 | **3,406** |
-| Celdas nulas, vacías o con fecha inválida (sin contar `ID`) | 304 (282 + 22) | **0** |
+| Celdas nulas, vacías o con fecha inválida (sin contar `ID`) | 304 (282 + 22) | **0** en las columnas de análisis |
 | Horas totales | 17,208.9 | **16,978.8** |
 
 **Medidas:** Q Tickets **3,406** · Q Horas **16,979** · Promedio Horas x Ticket **4.98** · % Resueltos **98.4%**
@@ -45,6 +45,7 @@ Resolución de la prueba con el archivo `RequerimientosPruebaDatos.csv`: el cicl
 ├── notebooks/EDA_Requerimientos.ipynb             # Módulo 3
 ├── powerbi/
 │   ├── pbip/Dashboard_Requerimientos.pbip         # proyecto Power BI (modelo TMDL + reporte PBIR)
+│   ├── pbip/LEEME.md                              # cómo abrir el PBIP (ruta corta, parámetro, actualizar)
 │   ├── medidas_dax.dax                            # medidas requeridas + apoyo + Calendario
 │   ├── power_query_requerimientos.m               # consulta de carga
 │   ├── recursos/CY24SU10.json                     # tema base que copia generar_pbip.py
@@ -80,7 +81,7 @@ pip install -r requirements.txt
 
 **Módulo 4 · Dashboard.** Medidas DAX `[Q Tickets]`, `[Q Horas]`, `[Promedio Horas x Ticket]` y `[% Resueltos]` más medidas de apoyo. Visuales: tendencia mensual, anillo por Tipo, dispersión por Usuario y matriz Acción × Usuario, con filtros y filtrado cruzado. Se entrega como proyecto Power BI (PBIP: modelo `Requerimientos` + `Calendario` + `_Medidas`, página *Dashboard* con 15 visuales) y como dashboard HTML equivalente.
 
-**Módulo 5 · Informe.** Las horas registradas cubren la jornada (9.4 h por técnico y día); de enero a junio los tickets mensuales bajan 19% y las horas por ticket suben 78%, empujadas por los tickets largos; 67 tickets de más de 40 h explican el 57% de las horas (23 de ellos los trabaja una sola persona) y los tickets abiertos antes de 2026 consumen el 34.5%. Tres recomendaciones con meta medible.
+**Módulo 5 · Informe.** Las horas registradas cubren la jornada (9.4 h por técnico y día); de enero a junio los tickets mensuales bajan 19% y las horas por ticket suben 78%, empujadas por los tickets largos; 67 tickets de más de 40 h explican el 57% de las horas (25 de ellos los trabaja una sola persona) y los tickets abiertos antes de 2026 consumen el 34.5%. Tres recomendaciones con meta medible.
 
 ## Supuestos
 

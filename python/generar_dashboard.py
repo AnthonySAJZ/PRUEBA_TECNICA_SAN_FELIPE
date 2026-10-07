@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import html as html_mod
 import json
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -60,12 +61,16 @@ def main() -> None:
     periodo = (f"{meses_es[int(ini[5:7]) - 1]}–{meses_es[int(fin[5:7]) - 1]} {fin[:4]}" if ini[:4] == fin[:4]
                else f"{meses_es[int(ini[5:7]) - 1]} {ini[:4]} – {meses_es[int(fin[5:7]) - 1]} {fin[:4]}")
 
-    html = PLANTILLA.read_text(encoding="utf-8")
-    # "<" escapado: un texto con "</script>" en los datos no puede cerrar el bloque de script
-    html = html.replace("__DATA__", json.dumps(datos, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c"))
-    html = html.replace("__RESUMEN__", html_mod.escape(resumen))
-    html = html.replace("__PERIODO__", html_mod.escape(periodo))
-    html = html.replace("__ECHARTS__", ECHARTS.read_text(encoding="utf-8"))
+    # Reemplazo en una sola pasada: un texto de los datos que contenga un marcador no se vuelve a sustituir.
+    # "<" escapado: un texto con "</script>" en los datos no puede cerrar el bloque de script.
+    reemplazos = {
+        "__DATA__": json.dumps(datos, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c"),
+        "__RESUMEN__": html_mod.escape(resumen),
+        "__PERIODO__": html_mod.escape(periodo),
+        "__ECHARTS__": ECHARTS.read_text(encoding="utf-8"),
+    }
+    html = re.sub(r"__(?:DATA|RESUMEN|PERIODO|ECHARTS)__", lambda m: reemplazos[m.group(0)],
+                  PLANTILLA.read_text(encoding="utf-8"))
     SALIDA.write_text(html, encoding="utf-8")
     print(f"Dashboard generado: {SALIDA} ({SALIDA.stat().st_size / 1024:,.0f} KB)")
 

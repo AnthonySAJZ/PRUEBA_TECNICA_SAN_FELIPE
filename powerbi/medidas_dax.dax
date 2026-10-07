@@ -68,7 +68,8 @@ DIVIDE (
     COUNTROWS ( SUMMARIZE ( Requerimientos, Requerimientos[Usuario], Requerimientos[FechaRegistro] ) )
 )
 
-// Días-usuario con más de 12 h registradas (posible sobrecarga o doble registro).
+// Días-técnico con más de 12 h (posible sobrecarga o doble registro), sobre Horas ya
+// acotadas a 10 h por registro; con las horas originales serían 38.
 // Se excluye "NO IDENTIFICADO" porque agrupa a varias personas.
 Q Dias Sobrecargados =
 COUNTROWS (

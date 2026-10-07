@@ -353,7 +353,7 @@ function opcionLinea(valores, etiqueta, formato, color) {
   };
 }
 
-function opcionTipo(r) {
+function opcionTipo(r, totalFiltrado = r.tickets) {
   const colores = [css("--s1"), css("--s2"), css("--s3"), css("--s4")];
   // Orden y color fijos por tipo (el color sigue a la categoría, no a su ranking del filtro)
   const orden = D.tiposOrdenColor.map((t) => D.tipos.indexOf(t));
@@ -375,7 +375,7 @@ function opcionTipo(r) {
       labelLine: { show: conEtiquetas, lineStyle: { color: css("--axis") } },
       data: datos,
     }],
-    graphic: [{ type: "text", left: "center", top: "39%", style: { text: fmt0.format(r.tickets), fill: css("--text"), fontSize: 22, fontWeight: 650, align: "center" } },
+    graphic: [{ type: "text", left: "center", top: "39%", style: { text: fmt0.format(totalFiltrado), fill: css("--text"), fontSize: 22, fontWeight: 650, align: "center" } },
               { type: "text", left: "center", top: "49%", style: { text: "tickets", fill: css("--text-2"), fontSize: 12, align: "center" } }],
   };
 }
@@ -479,8 +479,10 @@ function actualizar() {
 
   charts.chTickets.setOption(opcionLinea(r.mesTickets, "Q Tickets", (v) => fmt0.format(v), css("--s1")), true);
   charts.chHoras.setOption(opcionLinea(r.mesHoras, "Q Horas", (v) => fmt0.format(v), css("--s1")), true);
-  charts.chTipo.setOption(opcionTipo(estado.tipo >= 0 ? calcular("tipo") : r), true);
-  charts.chUsuario.setOption(opcionUsuario(estado.usuario >= 0 ? calcular("usuario") : r), true);
+  const rTipo = estado.tipo >= 0 ? calcular("tipo") : r;       // el anillo resalta su Tipo, no se filtra
+  const rUsu = estado.usuario >= 0 ? calcular("usuario") : r;   // la dispersión resalta su Usuario, no se filtra
+  charts.chTipo.setOption(opcionTipo(rTipo, r.tickets), true);
+  charts.chUsuario.setOption(opcionUsuario(rUsu), true);
   charts.chMatriz.setOption(opcionMatriz(r), true);
 
   const rango = [];
@@ -489,12 +491,12 @@ function actualizar() {
         rango.map((m) => [etiquetaMes(D.meses[m]), fmt0.format(r.mesTickets[m]), fmt1.format(r.mesHoras[m]),
                           r.mesTickets[m] ? fmt2.format(r.mesHoras[m] / r.mesTickets[m]) : "–"]));
   tabla("tbTipo", [["Tipo"], ["Q Tickets", 1], ["% Tickets", 1], ["Q Horas", 1], ["Horas x Ticket", 1]],
-        D.tipos.map((t, i) => i).filter((i) => r.tipoTickets[i] > 0).sort((a, b) => r.tipoTickets[b] - r.tipoTickets[a])
-          .map((i) => [D.tipos[i], fmt0.format(r.tipoTickets[i]), pct1.format(r.tipoTickets[i] / r.tickets), fmt1.format(r.tipoHoras[i]),
-                       fmt2.format(r.tipoHoras[i] / r.tipoTickets[i])]));
+        D.tipos.map((t, i) => i).filter((i) => rTipo.tipoTickets[i] > 0).sort((a, b) => rTipo.tipoTickets[b] - rTipo.tipoTickets[a])
+          .map((i) => [D.tipos[i], fmt0.format(rTipo.tipoTickets[i]), pct1.format(rTipo.tipoTickets[i] / rTipo.tickets), fmt1.format(rTipo.tipoHoras[i]),
+                       fmt2.format(rTipo.tipoHoras[i] / rTipo.tipoTickets[i])]));
   tabla("tbUsuario", [["Usuario"], ["Q Tickets", 1], ["Q Horas", 1], ["Horas x Ticket", 1]],
-        D.usuarios.map((u, i) => i).filter((i) => r.usuTickets[i] > 0).sort((a, b) => r.usuTickets[b] - r.usuTickets[a])
-          .map((i) => [D.usuarios[i], fmt0.format(r.usuTickets[i]), fmt1.format(r.usuHoras[i]), fmt2.format(r.usuHoras[i] / r.usuTickets[i])]));
+        D.usuarios.map((u, i) => i).filter((i) => rUsu.usuTickets[i] > 0).sort((a, b) => rUsu.usuTickets[b] - rUsu.usuTickets[a])
+          .map((i) => [D.usuarios[i], fmt0.format(rUsu.usuTickets[i]), fmt1.format(rUsu.usuHoras[i]), fmt2.format(rUsu.usuHoras[i] / rUsu.usuTickets[i])]));
   const filasMatriz = [];
   r.matriz.forEach((celda, k) => filasMatriz.push([D.acciones[Math.floor(k / r.nUsu)], D.usuarios[k % r.nUsu], celda.n, celda.h]));
   filasMatriz.sort((a, b) => b[3] - a[3]);

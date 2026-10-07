@@ -322,9 +322,10 @@ def derivar_columnas(df: pd.DataFrame, log: Bitacora) -> pd.DataFrame:
     # un ticket puede figurar 'Asignado' y luego 'Cerrado').
     df = df.sort_values(["FechaRegistro", "FilaOrigen"])
     df["EstadoTicket"] = df.groupby("Codigo")["Estado"].transform("last")
-    conflictos = (df.groupby("Codigo")["Estado"].nunique() > 1).sum()
+    multi = df.groupby("Codigo")["Estado"].transform("nunique") > 1
+    conflictos = df.loc[multi, "Codigo"].nunique()
     log.registrar("5-Derivadas", "EstadoTicket", f"Tickets con más de un estado en el periodo ({conflictos} tickets)",
-                  "EstadoTicket = estado del último registro del ticket", conflictos)
+                  "EstadoTicket = estado del último registro del ticket", int(multi.sum()))
     df["EsResuelto"] = df["EstadoTicket"].isin(ESTADOS_RESUELTOS).astype(int)
     return df
 

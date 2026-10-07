@@ -25,4 +25,4 @@
 5-Imputación,Estado,Estado nulo; el ticket tiene estado en otro registro,Se usa el último estado conocido del ticket,55
 5-Imputación,Estado,Estado nulo sin otra referencia en el ticket,Se etiqueta 'Sin Estado' (no cuenta como resuelto),49
 5-Derivadas,AccionCodigo,"Número de actividad compartido por acciones distintas ['24_Análisis_Datos', '24_Validaciones QA']","Se informa, no se corrige: usar Accion como clave",72
-5-Derivadas,EstadoTicket,Tickets con más de un estado en el periodo (15 tickets),EstadoTicket = estado del último registro del ticket,15
+5-Derivadas,EstadoTicket,Tickets con más de un estado en el periodo (15 tickets),EstadoTicket = estado del último registro del ticket,438

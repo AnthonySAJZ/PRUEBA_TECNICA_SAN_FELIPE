@@ -3,7 +3,7 @@
 Script: [`python/limpieza.py`](../python/limpieza.py) · Bitácora generada: [`data/clean/log_limpieza.csv`](../data/clean/log_limpieza.csv)
 Archivo estandarizado: [`data/clean/RequerimientosPruebaDatos_Limpio.csv`](../data/clean/RequerimientosPruebaDatos_Limpio.csv) (también en `.xlsx` con diccionario y bitácora).
 
-**Resultado:** 7,158 → **7,075 filas**, 0 nulos en las columnas de análisis, categorías únicas y una columna `Flag*` por cada corrección (trazabilidad completa; los valores originales se conservan en `HorasOriginal`, `FechaOriginal` y `FilaOrigen`, que por eso mantienen sus vacíos de origen).
+**Resultado:** 7,158 → **7,075 filas**, 0 nulos en las columnas de análisis, categorías únicas y una columna `Flag*` por cada corrección (trazabilidad completa; los valores originales se conservan en `HorasOriginal`, `FechaOriginal` y `FilaOrigen`; las dos primeras mantienen por eso sus vacíos de origen).
 
 ## Hallazgos del perfilado que originan la limpieza
 
@@ -25,11 +25,11 @@ Archivo estandarizado: [`data/clean/RequerimientosPruebaDatos_Limpio.csv`](../da
 | 14 | Horas como texto no sumable | `HORAS` | `01:30:00` | todas | 4. Horas | Horas decimales (`1.5`) |
 | 15 | Horas vacías | `HORAS` | — | 45 | 4. Horas | Mediana de la misma acción · `FlagHorasImputadas` |
 | 16 | Horas extremas en un registro | `HORAS` | 10:20 a 16:00 h | 55 | 4. Horas | Acotadas a 10 h (cerco extremo de Tukey Q3 + 3·IQR) · original en `HorasOriginal` · `FlagHorasAjustadas` |
-| 17 | Técnico con > 12 h en un día | `HORAS` | YSUYCO 19 h el 02/02/2026 | Origen: 195 filas / 39 días-técnico. Tras quitar duplicados y acotar registros a 10 h: 176 / 28 | 4. Horas | Solo se marca `FlagDiaSobrecargado`, calculado sobre las horas ya acotadas (no se sabe qué registro sobra) |
+| 17 | Técnico con > 12 h en un día | `HORAS` | YSUYCO 19 h el 02/02/2026 | Origen: 195 filas / 39 días-técnico. Sin duplicados y sin tope: 190 / 38. Tras la limpieza (sin duplicados, con fechas y horas imputadas y registros acotados a 10 h): 176 / 28 | 4. Horas | Solo se marca `FlagDiaSobrecargado`, calculado sobre las horas ya acotadas (no se sabe qué registro sobra) |
 | 18 | Sistema vacío | `SISTEMA/ CANAL` | — | 36 | Imputación | 15 desde otro registro del mismo ticket · 21 `NO ESPECIFICADO` |
 | 19 | Usuario vacío | `USUARIO` | todos del 16 y 17/04/2026 | 39 | Imputación | `NO IDENTIFICADO` (un ticket tiene varios técnicos: no se adivina) |
 | 20 | Acción vacía | `ACCIÓN` | — | 24 | Imputación | `00_No Especificado` |
-| 21 | Ticket con varios estados en el periodo | `ESTADO` | `Asignado` y luego `Cerrado` | 15 tickets | Derivada | `EstadoTicket` = estado del último registro (base de `% Resueltos`) |
+| 21 | Ticket con varios estados en el periodo | `ESTADO` | `Asignado` y luego `Cerrado` | 15 tickets (438 filas) | Derivada | `EstadoTicket` = estado del último registro (base de `% Resueltos`) |
 | 22 | Número de actividad compartido por dos acciones | `ACCIÓN` | `24_Validaciones QA` y `24_Análisis_Datos` | 72 (8 + 64) | Derivada | Se informa, no se corrige: `AccionCodigo` no identifica la actividad; usar `Accion` como clave |
 
 \* Una de las 105 filas con `NULL` era duplicada, por eso 55 + 49 = 104.
