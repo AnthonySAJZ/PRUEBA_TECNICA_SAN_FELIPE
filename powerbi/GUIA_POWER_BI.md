@@ -18,18 +18,19 @@ powerbi/pbip/
 └── Dashboard_Requerimientos.Report/           reporte (PBIR): página "Dashboard", 15 visuales
 ```
 
-**Requisitos:** Power BI Desktop para Windows de **agosto de 2025 o posterior**. En versiones donde estos formatos aún eran vista previa, activar en *Archivo > Opciones y configuración > Opciones > Características en versión preliminar*: "Power BI Project (.pbip) save option", "Store semantic model using TMDL format" y "Store reports using enhanced metadata format (PBIR)" (nombres en inglés; en español aparecen traducidos). Reiniciar Desktop. Si esas opciones ya no aparecen, es que están disponibles de forma general.
+**Requisitos:** Power BI Desktop para Windows de **agosto de 2025 o posterior**. En versiones donde estos formatos aún estaban en vista previa, activar en *Archivo > Opciones y configuración > Opciones > Características en versión preliminar*: "Power BI Project (.pbip) save option", "Store semantic model using TMDL format" y "Store reports using enhanced metadata format (PBIR)" (nombres en inglés; en español aparecen traducidos). Reiniciar Desktop. Si esas opciones ya no aparecen, es que están disponibles de forma general.
 
 **Pasos:**
-1. Clonar o descargar el repositorio. Se recomienda una ruta corta (por ejemplo `C:\PruebaSanFelipe`), porque Windows tiene un límite de longitud de ruta.
+1. Clonar el repositorio en una ruta corta: `git clone https://github.com/AnthonySAJZ/PRUEBA_TECNICA_SAN_FELIPE C:\PruebaSanFelipe`. Power BI no admite rutas de proyecto de más de 260 caracteres. Si se descarga el ZIP de GitHub, extraerlo en `C:\` y renombrar la carpeta a `PruebaSanFelipe`: "Extraer todo" dentro de *Descargas* anida la carpeta dos veces y alarga la ruta. No abrir el `.pbip` desde dentro del ZIP ni desde una carpeta sincronizada con OneDrive o SharePoint.
 2. Doble clic en `powerbi\pbip\Dashboard_Requerimientos.pbip`. El reporte **abre sin datos**: el proyecto no versiona la caché (`cache.abf`).
 3. *Inicio > Transformar datos* (flecha) *> Editar parámetros* > **`RutaArchivoCSV`** = ruta absoluta de `data\clean\RequerimientosPruebaDatos_Limpio.csv` en tu equipo > *Aceptar* > *Aplicar cambios*. Si clonaste en `C:\PruebaSanFelipe`, la ruta por defecto ya es correcta.
 4. *Inicio > Actualizar*.
 5. Comprobar los valores de control de las secciones 3 y 5 (3,406 tickets · 16,979 horas · 4.98 · 98.4%).
-6. Para entregar un `.pbix`: *Archivo > Guardar como* > tipo *Archivo de Power BI (.pbix)*.
+6. Antes de enviar, guardar también el `.pbix` con datos: *Archivo > Guardar como* > tipo *Archivo de Power BI (.pbix)* > `powerbi\Dashboard_Requerimientos.pbix`. Ese archivo abre con los datos incluidos, sin pasos previos. Al cerrar, no guardar los cambios del `.pbip`, para no versionar la ruta local (o descartarlos con `git checkout -- powerbi/pbip`).
 
 **Qué esperar:**
-- Al guardar, Desktop puede reescribir archivos del proyecto (subir la versión de `$schema`, agregar `cultures/`, `.pbi/localSettings.json`, etc.). Es normal; el `.gitignore` del proyecto ya excluye la caché y la configuración local.
+- Antes del primer *Actualizar* es normal ver una barra amarilla que avisa que uno o varios objetos calculados deben actualizarse manualmente (en inglés: "One or more calculated objects need to be manually refreshed"), un aviso de error en la segmentación *Mes* y en los dos gráficos de línea (la tabla calculada `Calendario` aún no tiene datos) y las tarjetas en blanco. Se resuelve con los pasos 3 y 4. Si se pulsa el botón de la barra antes del paso 3, la segmentación Mes mostrará "Dic 1899" hasta actualizar; es inofensivo.
+- Al guardar, Desktop puede reescribir archivos del proyecto (subir la versión de `$schema`, reescribir `cultures/`, agregar `.pbi/localSettings.json`, etc.). Es normal; el `.gitignore` del proyecto ya excluye la caché y la configuración local.
 - Desktop no detecta cambios hechos a los archivos mientras el proyecto está abierto: cerrar y volver a abrir.
 - El proyecto se regenera con `python python/generar_pbip.py`, opcionalmente con `--ruta-csv "<ruta>"` para dejar fijado el parámetro. Se reemplazan solo los archivos que crea el script.
 
@@ -45,6 +46,10 @@ powerbi/pbip/
 |---|---|---|
 | "No se encontró el archivo" al actualizar | `RutaArchivoCSV` apunta a otra ruta | Paso 3 |
 | Visuales vacíos | Falta actualizar | Paso 4 |
+| Barra amarilla de objetos calculados, o error de tabla calculada en Mes y en las líneas | El proyecto no incluye caché; `Calendario` aún no se ha calculado | Pasos 3 y 4 |
+| "No se encuentra Dashboard_Requerimientos.Report" o el proyecto no abre desde el ZIP | Se abrió el `.pbip` sin extraer todo el ZIP | Extraer el ZIP completo (paso 1) |
+| Error al guardar o "the target folder might be corrupted" | El proyecto está en OneDrive o SharePoint, o la ruta pasa de 260 caracteres | Mover el proyecto a `C:\PruebaSanFelipe` |
+| "Multiple SaveChanges without transaction" o "problem with the definition content" al abrir de nuevo | Caché local desactualizada | Cerrar Desktop, borrar `Dashboard_Requerimientos.SemanticModel\.pbi\cache.abf` y volver a abrir |
 | Desktop dice que el formato requiere una versión más nueva o una característica en vista previa | Desktop anterior a agosto 2025 o vista previa desactivada | Actualizar Desktop o activar las opciones de vista previa |
 | Las tarjetas aparecen como "tarjeta (heredada)" | Se usa la tarjeta clásica (`card`), aún soportada | Opcional: cambiar a la tarjeta nueva desde el panel de visualizaciones |
 
@@ -97,7 +102,7 @@ Así está construida la página del PBIP: vertical de 1280 × 1500 px, en modo 
 | Eficiencia | **Gráfico de dispersión** | Valores (detalle) `Usuario`; Eje X `[Q Tickets]`; Eje Y `[Q Horas]`; Información sobre herramientas `[Promedio Horas x Ticket]`; etiquetas de categoría activadas. |
 | Matriz de trabajo | **Matriz** con formato condicional | Filas `Accion`, Columnas `Usuario`, Valores `[Q Horas]`. Formato condicional → Color de fondo → degradado de blanco a azul. Filas ordenadas por `[Q Horas]` descendente; las columnas quedan en orden alfabético. |
 
-**Interacciones:** un clic en el anillo, un punto de la dispersión o una celda **filtra** el resto de visuales, igual que el dashboard HTML. El PBIP ya lo trae configurado. Para armado manual: *Archivo > Opciones y configuración > Opciones > Archivo actual > Configuración del informe* > "Cambiar la interacción visual predeterminada de resaltado cruzado a filtrado cruzado".
+**Interacciones:** en Power BI, un clic en el anillo, en un punto de la dispersión o en una celda de la matriz **filtra** los demás visuales (el visual de origen resalta la selección). El PBIP ya lo trae configurado. En el dashboard HTML el clic funciona igual en el anillo y en la dispersión, y además están las listas de filtros. Para armado manual: *Archivo > Opciones y configuración > Opciones > Archivo actual > Configuración del informe* > "Cambiar la interacción visual predeterminada de resaltado cruzado a filtrado cruzado".
 
 ## 5. Valores de control por mes
 

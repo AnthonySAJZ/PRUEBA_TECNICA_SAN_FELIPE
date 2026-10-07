@@ -35,32 +35,33 @@
 <div class="kpis">
   <div class="kpi"><div class="l">Q Tickets</div><div class="v">3,406</div><div class="c">tickets únicos atendidos</div></div>
   <div class="kpi"><div class="l">Q Horas</div><div class="v">16,979</div><div class="c">horas invertidas</div></div>
-  <div class="kpi"><div class="l">Promedio Horas x Ticket</div><div class="v">4.98</div><div class="c">mediana por registro: 1.5 h</div></div>
+  <div class="kpi"><div class="l">Promedio Horas x Ticket</div><div class="v">4.98</div><div class="c">mediana por ticket: 1.0 h</div></div>
   <div class="kpi"><div class="l">% Resueltos</div><div class="v">98.4%</div><div class="c">3,351 cerrados o resueltos</div></div>
 </div>
 
 <h2>1. Principales hallazgos</h2>
 <ul>
-  <li><b>La capacidad está copada.</b> Cada técnico registra en promedio 9.4 h por día trabajado (jornada ≈ 9.5 h).
-      La mejora no vendrá de "más horas", sino de cómo se reparten.</li>
-  <li><b>Se atienden menos tickets y cada uno cuesta más.</b> Los tickets atendidos bajaron de 706 (mar) a 524 (jun), −26%,
-      mientras las horas por ticket subieron de 3.7 h a 6.5 h (+78%).
-      En paralelo, los proyectos pasaron de 7% de las horas en feb a 33% en jun.</li>
+  <li><b>Las horas registradas cubren la jornada.</b> Cada técnico registra en promedio 9.4 h por día trabajado (jornada observada ≈ 9.5 h, la mediana de los propios registros).
+      El registro de horas no permite medir holgura: la mejora pasa por cómo se reparte el trabajo, no por sumar horas.</li>
+  <li><b>Menos tickets por mes y más horas por ticket.</b> De ene a jun los tickets atendidos bajaron de 645 a 524 (−19%; pico de 706 en mar)
+      y las horas por ticket subieron de 3.7 h a 6.5 h (+78%).
+      El alza viene sobre todo de los tickets de más de 40 h, que pasaron de 51% a 65% de las horas del mes; sin ellos, el promedio va de 1.9 h a 2.4 h.</li>
   <li><b>El esfuerzo está muy concentrado.</b> Los proyectos (PRY) son el 0.5% de los tickets pero consumen el 22% de las horas
       (222 h por ticket). Los 67 tickets de más de 40 h (2% del total) explican el 57% de las horas.</li>
-  <li><b>Backlog heredado.</b> 152 tickets abiertos antes de 2026 (4.5%) absorben el 34.5% de las horas del semestre;
+  <li><b>Trabajo heredado de años anteriores.</b> 152 tickets abiertos antes de 2026 (4.5%) absorben el 34.5% de las horas del semestre;
       solo tres suman 2,739 h: REQ 2024-023822 (1,116 h), REQ 2024-022552 (1,080 h), REQ 2024-021925 (543 h). El REQ 2024-022552 pasó por 14 técnicos.</li>
   <li><b>La demanda operativa es alta en volumen y baja en esfuerzo.</b> Los incidentes (INC) son el 42% de los tickets con 1.3 h por ticket;
       el sistema SIC concentra el 48% de los registros.</li>
   <li><b>Calidad del dato mejorable.</b> Se corrigieron 83 registros duplicados, 22 fechas inexistentes (p. ej. 32/11/2026), 55 registros de más de 10 h y 39 registros sin usuario
-      (todos del 16 y 17 de abril). Tras la limpieza, el dataset queda trazable y sin nulos.</li>
+      (todos del 16 y 17 de abril). Tras la limpieza, el dataset queda trazable y sin nulos. El estado es una foto al cierre del extracto
+      (99% de los registros figura Cerrado, incluso en tickets que siguieron recibiendo horas): el % Resueltos puede sobreestimar los cierres.</li>
 </ul>
 <div class="fig"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="509.720826pt" height="162pt" viewBox="0 0 509.720826 162" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-10-07T00:34:30.302565</dc:date>
+    <dc:date>2026-10-07T03:57:18.928894</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -379,7 +380,7 @@ z
      <g id="line2d_7">
       <path d="M 25.9625 141.620313 
 L 244.909788 141.620313 
-" clip-path="url(#p428c35d0fe)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pf7f67284fa)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_8"/>
      <g id="text_7">
@@ -408,7 +409,7 @@ z
      <g id="line2d_9">
       <path d="M 25.9625 114.49248 
 L 244.909788 114.49248 
-" clip-path="url(#p428c35d0fe)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pf7f67284fa)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_10"/>
      <g id="text_8">
@@ -443,7 +444,7 @@ z
      <g id="line2d_11">
       <path d="M 25.9625 87.364647 
 L 244.909788 87.364647 
-" clip-path="url(#p428c35d0fe)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pf7f67284fa)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_12"/>
      <g id="text_9">
@@ -482,7 +483,7 @@ z
      <g id="line2d_13">
       <path d="M 25.9625 60.236814 
 L 244.909788 60.236814 
-" clip-path="url(#p428c35d0fe)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pf7f67284fa)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_14"/>
      <g id="text_10">
@@ -519,7 +520,7 @@ z
      <g id="line2d_15">
       <path d="M 25.9625 33.108981 
 L 244.909788 33.108981 
-" clip-path="url(#p428c35d0fe)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pf7f67284fa)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_16"/>
      <g id="text_11">
@@ -561,7 +562,7 @@ z
    </g>
    <g id="FillBetweenPolyCollection_1">
     <defs>
-     <path id="mf455ed557b" d="M 35.914649 -20.379688 
+     <path id="m5951fda79d" d="M 35.914649 -20.379688 
 L 35.914649 -107.866948 
 L 75.723247 -112.47868 
 L 115.531845 -116.140938 
@@ -578,8 +579,8 @@ L 35.914649 -20.379688
 z
 " style="stroke: #2a78d6; stroke-opacity: 0.07"/>
     </defs>
-    <g clip-path="url(#p428c35d0fe)">
-     <use xlink:href="#mf455ed557b" x="0" y="162" style="fill: #2a78d6; fill-opacity: 0.07; stroke: #2a78d6; stroke-opacity: 0.07"/>
+    <g clip-path="url(#pf7f67284fa)">
+     <use xlink:href="#m5951fda79d" x="0" y="162" style="fill: #2a78d6; fill-opacity: 0.07; stroke: #2a78d6; stroke-opacity: 0.07"/>
     </g>
    </g>
    <g id="line2d_17">
@@ -589,9 +590,9 @@ L 115.531845 45.859063
 L 155.340443 59.829896 
 L 195.149041 70.816669 
 L 234.957639 70.54539 
-" clip-path="url(#p428c35d0fe)" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
+" clip-path="url(#pf7f67284fa)" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
     <defs>
-     <path id="mb83c3ac1ce" d="M 0 2.5 
+     <path id="m2bc231501b" d="M 0 2.5 
 C 0.663008 2.5 1.29895 2.236584 1.767767 1.767767 
 C 2.236584 1.29895 2.5 0.663008 2.5 0 
 C 2.5 -0.663008 2.236584 -1.29895 1.767767 -1.767767 
@@ -603,13 +604,13 @@ C -1.29895 2.236584 -0.663008 2.5 0 2.5
 z
 " style="stroke: #ffffff; stroke-width: 1.5"/>
     </defs>
-    <g clip-path="url(#p428c35d0fe)">
-     <use xlink:href="#mb83c3ac1ce" x="35.914649" y="54.133052" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="75.723247" y="49.52132" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="115.531845" y="45.859063" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="155.340443" y="59.829896" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="195.149041" y="70.816669" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="234.957639" y="70.54539" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+    <g clip-path="url(#pf7f67284fa)">
+     <use xlink:href="#m2bc231501b" x="35.914649" y="54.133052" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="75.723247" y="49.52132" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="115.531845" y="45.859063" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="155.340443" y="59.829896" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="195.149041" y="70.816669" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="234.957639" y="70.54539" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
     </g>
    </g>
    <g id="patch_3">
@@ -1104,7 +1105,7 @@ z
      <g id="line2d_24">
       <path d="M 283.573538 141.620313 
 L 502.520826 141.620313 
-" clip-path="url(#p56fdf779bb)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#p8a36abc363)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_25"/>
      <g id="text_22">
@@ -1118,7 +1119,7 @@ L 502.520826 141.620313
      <g id="line2d_26">
       <path d="M 283.573538 112.362892 
 L 502.520826 112.362892 
-" clip-path="url(#p56fdf779bb)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#p8a36abc363)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_27"/>
      <g id="text_23">
@@ -1132,7 +1133,7 @@ L 502.520826 112.362892
      <g id="line2d_28">
       <path d="M 283.573538 83.105471 
 L 502.520826 83.105471 
-" clip-path="url(#p56fdf779bb)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#p8a36abc363)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_29"/>
      <g id="text_24">
@@ -1146,7 +1147,7 @@ L 502.520826 83.105471
      <g id="line2d_30">
       <path d="M 283.573538 53.84805 
 L 502.520826 53.84805 
-" clip-path="url(#p56fdf779bb)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#p8a36abc363)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_31"/>
      <g id="text_25">
@@ -1160,7 +1161,7 @@ L 502.520826 53.84805
      <g id="line2d_32">
       <path d="M 283.573538 24.590629 
 L 502.520826 24.590629 
-" clip-path="url(#p56fdf779bb)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#p8a36abc363)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_33"/>
      <g id="text_26">
@@ -1173,7 +1174,7 @@ L 502.520826 24.590629
    </g>
    <g id="FillBetweenPolyCollection_2">
     <defs>
-     <path id="me8bf078066" d="M 293.525688 -20.379688 
+     <path id="m85849be09f" d="M 293.525688 -20.379688 
 L 293.525688 -74.322565 
 L 333.334286 -73.120588 
 L 373.142883 -84.756724 
@@ -1190,8 +1191,8 @@ L 293.525688 -20.379688
 z
 " style="stroke: #2a78d6; stroke-opacity: 0.07"/>
     </defs>
-    <g clip-path="url(#p56fdf779bb)">
-     <use xlink:href="#me8bf078066" x="0" y="162" style="fill: #2a78d6; fill-opacity: 0.07; stroke: #2a78d6; stroke-opacity: 0.07"/>
+    <g clip-path="url(#p8a36abc363)">
+     <use xlink:href="#m85849be09f" x="0" y="162" style="fill: #2a78d6; fill-opacity: 0.07; stroke: #2a78d6; stroke-opacity: 0.07"/>
     </g>
    </g>
    <g id="line2d_34">
@@ -1201,14 +1202,14 @@ L 373.142883 77.243276
 L 412.951481 74.303177 
 L 452.760079 62.019499 
 L 492.568677 45.859063 
-" clip-path="url(#p56fdf779bb)" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
-    <g clip-path="url(#p56fdf779bb)">
-     <use xlink:href="#mb83c3ac1ce" x="293.525688" y="87.677435" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="333.334286" y="88.879412" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="373.142883" y="77.243276" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="412.951481" y="74.303177" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="452.760079" y="62.019499" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
-     <use xlink:href="#mb83c3ac1ce" x="492.568677" y="45.859063" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+" clip-path="url(#p8a36abc363)" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
+    <g clip-path="url(#p8a36abc363)">
+     <use xlink:href="#m2bc231501b" x="293.525688" y="87.677435" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="333.334286" y="88.879412" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="373.142883" y="77.243276" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="412.951481" y="74.303177" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="452.760079" y="62.019499" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m2bc231501b" x="492.568677" y="45.859063" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.5"/>
     </g>
    </g>
    <g id="patch_6">
@@ -1345,10 +1346,10 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="p428c35d0fe">
+  <clipPath id="pf7f67284fa">
    <rect x="25.9625" y="21.91875" width="218.947288" height="119.701563"/>
   </clipPath>
-  <clipPath id="p56fdf779bb">
+  <clipPath id="p8a36abc363">
    <rect x="283.573538" y="21.91875" width="218.947288" height="119.701563"/>
   </clipPath>
  </defs>
@@ -1362,23 +1363,23 @@ z
   <tr><th>Cuello de botella</th><th>Evidencia</th></tr>
   <tr><td><b>Cola operativa en 3 personas</b></td>
       <td>JREBAZA (908), JROSALES (723), PBARDALES (689) atienden el 68% de los tickets (SIC, APP/WEB, SAP). Una ausencia frena la atención diaria.</td></tr>
-  <tr><td><b>Proyectos que dependen de una persona</b></td>
-      <td>SRODRIGUEZ: 5 tickets con 149 h c/u; MCARRASCO: 1 ticket de 310 h; ACARRASCO: 49 h por ticket. El conocimiento no está distribuido.</td></tr>
+  <tr><td><b>Tickets largos en una sola persona</b></td>
+      <td>23 de los 67 tickets de más de 40 h (1,471 h) los trabaja un solo técnico: JGUILLEN (6), AMOROMISATO (5), CRODRIGUEZ (4), RGREY (4). 6 de los 17 PRY tienen un solo técnico,
+      y en el REQ 2026-006414 (654 h) ACARRASCO aporta el 81%.</td></tr>
   <tr><td><b>Grupo Datos</b></td>
-      <td>AINGA y ACARRASCO cargan el trabajo del catálogo *_Datos; el grupo DATOS suma 1,739 h en solo 57 tickets (31 h por ticket).</td></tr>
+      <td>AINGA y ACARRASCO concentran las horas de las acciones *_Datos; el grupo DATOS suma 1,739 h en 57 tickets
+      (31 h por ticket en promedio, mediana 2 h: el REQ 2026-006414 pesa mucho).</td></tr>
   <tr><td><b>Grupos HCE UNIFICADA y MAC</b></td>
-      <td>Cada uno sostiene un proyecto de más de 1,000 h que corre todo el semestre (REQ 2024-023822 y REQ 2024-022552).</td></tr>
-  <tr><td><b>Fase de análisis</b></td>
-      <td>"02_Análisis" es el 49% de los registros y el 30% de las horas: 0.71 h de análisis por cada hora de desarrollo.</td></tr>
+      <td>Cada uno sostiene un ticket de más de 1,000 h con horas de enero a junio (REQ 2024-023822 en HCE UNIFICADA y REQ 2024-022552 en MAC).</td></tr>
   <tr><td><b>Sobrecarga diaria</b></td>
-      <td>28 días-técnico con más de 12 h registradas; los más frecuentes: AINGA (5 días), YSUYCO (5 días), FGONZALES (4 días).</td></tr>
+      <td>28 días-técnico con más de 12 h tras acotar registros a 10 h (38 con las horas originales); los más frecuentes: AINGA (5 días), YSUYCO (5 días), FGONZALES (4 días).</td></tr>
 </table>
 <div class="fig"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="252.023449pt" height="208.8pt" viewBox="0 0 252.023449 208.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-10-07T00:34:30.402370</dc:date>
+    <dc:date>2026-10-07T03:57:19.167652</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -1414,7 +1415,7 @@ z
      <g id="line2d_1">
       <path d="M 48.852821 174.740625 
 L 48.852821 21.91875 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_2"/>
      <g id="text_1">
@@ -1443,7 +1444,7 @@ z
      <g id="line2d_3">
       <path d="M 88.565377 174.740625 
 L 88.565377 21.91875 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_4"/>
      <g id="text_2">
@@ -1478,7 +1479,7 @@ z
      <g id="line2d_5">
       <path d="M 128.277933 174.740625 
 L 128.277933 21.91875 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_6"/>
      <g id="text_3">
@@ -1517,7 +1518,7 @@ z
      <g id="line2d_7">
       <path d="M 167.990488 174.740625 
 L 167.990488 21.91875 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_8"/>
      <g id="text_4">
@@ -1554,7 +1555,7 @@ z
      <g id="line2d_9">
       <path d="M 207.703044 174.740625 
 L 207.703044 21.91875 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_10"/>
      <g id="text_5">
@@ -1804,7 +1805,7 @@ z
      <g id="line2d_11">
       <path d="M 42.895938 174.740625 
 L 243.571425 174.740625 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_12"/>
      <g id="text_7">
@@ -1818,7 +1819,7 @@ L 243.571425 174.740625
      <g id="line2d_13">
       <path d="M 42.895938 153.079894 
 L 243.571425 153.079894 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_14"/>
      <g id="text_8">
@@ -1834,7 +1835,7 @@ L 243.571425 153.079894
      <g id="line2d_15">
       <path d="M 42.895938 131.419162 
 L 243.571425 131.419162 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_16"/>
      <g id="text_9">
@@ -1850,7 +1851,7 @@ L 243.571425 131.419162
      <g id="line2d_17">
       <path d="M 42.895938 109.758431 
 L 243.571425 109.758431 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_18"/>
      <g id="text_10">
@@ -1866,7 +1867,7 @@ L 243.571425 109.758431
      <g id="line2d_19">
       <path d="M 42.895938 88.0977 
 L 243.571425 88.0977 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_20"/>
      <g id="text_11">
@@ -1882,7 +1883,7 @@ L 243.571425 88.0977
      <g id="line2d_21">
       <path d="M 42.895938 66.436968 
 L 243.571425 66.436968 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_22"/>
      <g id="text_12">
@@ -1912,7 +1913,7 @@ z
      <g id="line2d_23">
       <path d="M 42.895938 44.776237 
 L 243.571425 44.776237 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_24"/>
      <g id="text_13">
@@ -1929,7 +1930,7 @@ L 243.571425 44.776237
      <g id="line2d_25">
       <path d="M 42.895938 23.115505 
 L 243.571425 23.115505 
-" clip-path="url(#p9ab8a225a5)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
+" clip-path="url(#pade6459260)" style="fill: none; stroke: #e1e0d9; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_26"/>
      <g id="text_14">
@@ -2032,7 +2033,7 @@ L 243.571425 174.740625
    </g>
    <g id="PathCollection_1">
     <defs>
-     <path id="meeda6d66b1" d="M 0 2.645751 
+     <path id="mf53c77859a" d="M 0 2.645751 
 C 0.701661 2.645751 1.374679 2.366978 1.870829 1.870829 
 C 2.366978 1.374679 2.645751 0.701661 2.645751 0 
 C 2.645751 -0.701661 2.366978 -1.374679 1.870829 -1.870829 
@@ -2044,26 +2045,26 @@ C -1.374679 2.366978 -0.701661 2.645751 0 2.645751
 z
 " style="stroke: #ffffff; stroke-width: 1.2"/>
     </defs>
-    <g clip-path="url(#p9ab8a225a5)">
-     <use xlink:href="#meeda6d66b1" x="52.426951" y="78.891889" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="125.696616" y="89.533037" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="65.92922" y="51.112001" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="56.199644" y="49.108383" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="49.647072" y="158.278469" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="54.611141" y="49.32499" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="70.099038" y="63.106642" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="54.611141" y="68.819649" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="61.362276" y="48.133639" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="229.147824" y="48.558244" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="192.41371" y="46.698832" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="49.051384" y="165.426511" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="49.051384" y="141.166491" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="185.662576" y="53.638552" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="59.773774" y="44.234718" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="58.185271" y="106.256605" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="49.845635" y="93.837793" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="66.524908" y="89.460506" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
-     <use xlink:href="#meeda6d66b1" x="129.866435" y="41.852038" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+    <g clip-path="url(#pade6459260)">
+     <use xlink:href="#mf53c77859a" x="52.426951" y="78.891889" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="125.696616" y="89.533037" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="65.92922" y="51.112001" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="56.199644" y="49.108383" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="49.647072" y="158.278469" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="54.611141" y="49.32499" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="70.099038" y="63.106642" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="54.611141" y="68.819649" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="61.362276" y="48.133639" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="229.147824" y="48.558244" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="192.41371" y="46.698832" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="49.051384" y="165.426511" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="49.051384" y="141.166491" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="185.662576" y="53.638552" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="59.773774" y="44.234718" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="58.185271" y="106.256605" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="49.845635" y="93.837793" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="66.524908" y="89.460506" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
+     <use xlink:href="#mf53c77859a" x="129.866435" y="41.852038" style="fill: #2a78d6; stroke: #ffffff; stroke-width: 1.2"/>
     </g>
    </g>
    <g id="text_16">
@@ -2295,7 +2296,7 @@ z
    </g>
    <g id="text_19">
     <!-- SRODRIGUEZ -->
-    <g style="fill: #0b0b0b" transform="translate(55.845635 101.837793) scale(0.07 -0.07)">
+    <g style="fill: #0b0b0b" transform="translate(55.845635 95.837793) scale(0.07 -0.07)">
      <defs>
       <path id="Inter-Regular-c5" d="M 1156 4656 
 L 563 4656 
@@ -2718,24 +2719,26 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="p9ab8a225a5">
+  <clipPath id="pade6459260">
    <rect x="42.895938" y="21.91875" width="200.675487" height="152.821875"/>
   </clipPath>
  </defs>
 </svg>
 
-<p class="nota">Abajo a la derecha: muchos tickets cortos. Arriba a la izquierda: pocos tickets muy largos.</p></div>
+<p class="nota">A la derecha: muchos tickets cortos (JREBAZA, JROSALES, PBARDALES). A la izquierda: pocos tickets de muchas horas.
+La altura refleja sobre todo los días trabajados: quienes se incorporaron durante el semestre quedan más abajo.</p></div>
 </div>
 
 <h2>3. Recomendaciones basadas en datos</h2>
-<div class="rec"><div class="t">1. Gestionar como proyecto todo ticket de más de 40 h y cerrar el backlog heredado.</div>
-  Los 67 tickets &gt; 40 h consumen el 57% de las horas sin un control propio. Llevarlos a un portafolio con responsable, hitos, criterio de cierre y
-  un tope de capacidad (p. ej. ≤ 25% de las horas del mes; en jun los PRY ya usaron 33%). Priorizar el cierre o replanteo de los tres tickets de 2024.
-  <div class="kpi-meta">Meta: horas por ticket mensual ≤ 4.5 h · horas en tickets anteriores a 2026 &lt; 20%.</div></div>
+<div class="rec"><div class="t">1. Gestionar como proyecto todo ticket de más de 40 h.</div>
+  Los 67 tickets &gt; 40 h consumen el 57% de las horas. Llevarlos a un portafolio con responsable, hitos, criterio de cierre y
+  un tope de capacidad (p. ej. ≤ 25% de las horas del mes; en jun los PRY ya usaron 33%). Validar el estado real de los tres tickets de 2024:
+  figuran Cerrado pero suman 2,739 h en el semestre.
+  <div class="kpi-meta">Meta: horas por ticket mensual ≤ 4.5 h (hoy 6.5 h) · horas en tickets anteriores a 2026 &lt; 20% (hoy 34.5%).</div></div>
 <div class="rec"><div class="t">2. Repartir la cola operativa y reducir la dependencia de personas clave.</div>
-  Crear una célula rotativa de primer nivel para INC/EXP de SIC y APP/WEB, con entrenamiento cruzado, y una base de conocimiento para los incidentes repetitivos:
-  bajar 20% el esfuerzo en INC libera ≈ 367 h por semestre. Asignar un respaldo documentado a cada proyecto con un solo técnico.
-  <div class="kpi-meta">Meta: ningún técnico con más del 25% de los tickets · 100% de proyectos con respaldo.</div></div>
+  Crear una célula rotativa de primer nivel para los incidentes de SIC y APP/ WEB (825 y 287 INC), con entrenamiento cruzado, y una base de conocimiento para los incidentes repetitivos:
+  bajar 20% el esfuerzo en INC libera ≈ 367 h por semestre. Asignar un respaldo documentado a cada ticket largo con un solo técnico (hoy 23).
+  <div class="kpi-meta">Meta: ningún técnico con más del 25% de los tickets (hoy JREBAZA, 26.7%) · 100% de tickets &gt; 40 h con respaldo.</div></div>
 <div class="rec"><div class="t">3. Asegurar la calidad del registro de horas y seguirla cada mes.</div>
   Validar en la herramienta: fecha con calendario, listas cerradas para estado, acción y sistema, usuario obligatorio, tope de 10 h por registro y alerta sobre 12 h por día.
   Publicar el dashboard (medidas DAX del Módulo 4) como tablero mensual del área.

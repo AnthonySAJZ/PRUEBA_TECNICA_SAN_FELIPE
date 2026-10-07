@@ -26,7 +26,7 @@ SELECT
                                                                 AS CodigosUnicosNormalizados,
     CAST(COUNT(*) * 1.0 / NULLIF(COUNT(DISTINCT Codigo COLLATE Latin1_General_BIN), 0) AS DECIMAL(6, 2))
                                                                 AS RegistrosPromedioPorCodigo,
-    COUNT(*) - COUNT(DISTINCT Codigo COLLATE Latin1_General_BIN) AS RegistrosConCodigoRepetido
+    COUNT(*) - COUNT(DISTINCT Codigo COLLATE Latin1_General_BIN) AS RegistrosAdicionalesPorRepeticion
 FROM dbo.Requerimientos;
 /* Nota: un código se repite porque cada fila es un registro de horas (varias
    personas y actividades sobre el mismo ticket); no es en sí un duplicado.
@@ -41,7 +41,7 @@ SELECT TOP (10)
     CAST(SUM(HorasDecimal) AS DECIMAL(9, 2)) AS HorasTotales
 FROM dbo.Requerimientos
 GROUP BY Codigo
-ORDER BY Registros DESC;
+ORDER BY Registros DESC, Codigo;
 GO
 
 /* ---------------------------------------------------------------------------
@@ -127,6 +127,8 @@ GO
       El valor se muestra entre corchetes para evidenciar espacios ocultos.
    --------------------------------------------------------------------------- */
 -- 4.1 Resumen: cuántos valores distintos tiene cada variable
+--     (COUNT DISTINCT ignora NULL; en Estado el texto literal 'NULL' sí cuenta como
+--      valor: los estados reales son 5, ver sección 2 y 5.2)
 SELECT 'Tipo'    AS Variable, COUNT(DISTINCT Tipo)    AS ValoresDistintos FROM dbo.Requerimientos UNION ALL
 SELECT 'Estado',              COUNT(DISTINCT Estado)                      FROM dbo.Requerimientos UNION ALL
 SELECT 'Accion',              COUNT(DISTINCT Accion)                      FROM dbo.Requerimientos UNION ALL
@@ -147,7 +149,7 @@ SELECT
     CAST(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION BY Variable) AS DECIMAL(5, 2)) AS Porcentaje
 FROM Valores
 GROUP BY Variable, Valor
-ORDER BY Variable, Registros DESC;
+ORDER BY Variable, Registros DESC, Valor;
 GO
 
 /* ---------------------------------------------------------------------------
@@ -199,7 +201,7 @@ FROM stg.RequerimientosRaw AS s
 WHERE NULLIF(LTRIM(RTRIM(s.FECHA)), '') IS NOT NULL
   AND TRY_CONVERT(DATE, s.FECHA, 103) IS NULL
 GROUP BY s.FECHA
-ORDER BY Registros DESC;
+ORDER BY Registros DESC, FechaTexto;
 
 -- 5.4 Horas: estadísticos y valores extremos (regla de Tukey sobre el IQR).
 --     Se calcula en minutos enteros para no arrastrar redondeos (40 min = 0.6667 h).
@@ -234,6 +236,19 @@ SELECT
 FROM Cercos AS c;
 
 -- 5.5 Carga diaria por usuario superior a 12 horas (posible doble registro)
+--     Total en el origen (antes de quitar duplicados y acotar registros a 10 h)
+SELECT COUNT(*) AS DiasTecnicoMas12h, SUM(Registros) AS RegistrosEnEsosDias
+FROM
+(
+    SELECT COUNT(*) AS Registros
+    FROM dbo.Requerimientos
+    WHERE NULLIF(LTRIM(RTRIM(Usuario)), N'') IS NOT NULL
+      AND FechaRegistro IS NOT NULL
+    GROUP BY Usuario, FechaRegistro
+    HAVING SUM(Minutos) > 12 * 60
+) AS d;
+
+--     Detalle: los 15 días-técnico con más horas
 SELECT TOP (15)
     Usuario,
     FechaRegistro,
@@ -244,7 +259,7 @@ WHERE NULLIF(LTRIM(RTRIM(Usuario)), N'') IS NOT NULL
   AND FechaRegistro IS NOT NULL
 GROUP BY Usuario, FechaRegistro
 HAVING SUM(Minutos) > 12 * 60
-ORDER BY HorasDia DESC;
+ORDER BY HorasDia DESC, Usuario, FechaRegistro;
 
 -- 5.6 Coherencia Tipo vs. prefijo del código (solo se informa: no hay regla para corregir)
 SELECT LEFT(UPPER(Codigo), 3) AS PrefijoCodigo, Tipo, COUNT(*) AS Registros

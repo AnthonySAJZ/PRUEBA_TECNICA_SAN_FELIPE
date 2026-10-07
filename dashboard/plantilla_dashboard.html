@@ -7,10 +7,10 @@
 <style>
   :root {
     color-scheme: light;
-    --page: #f9f9f7; --surface: #fcfcfb; --text: #0b0b0b; --text-2: #52514e; --muted: #898781;
+    --page: #f9f9f7; --surface: #fcfcfb; --text: #0b0b0b; --text-2: #52514e; --muted: #6f6d68;
     --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
     --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
-    --seq-0: #e8f1fc; --seq-1: #b7d3f6; --seq-2: #6da7ec; --seq-3: #2a78d6; --seq-4: #184f95; --seq-5: #0d366b;
+    --seq-0: #cfe0f6; --seq-1: #b7d3f6; --seq-2: #6da7ec; --seq-3: #2a78d6; --seq-4: #184f95; --seq-5: #0d366b;
     --focus: #2a78d6;
   }
   @media (prefers-color-scheme: dark) {
@@ -93,10 +93,10 @@
 <div class="wrap">
   <header>
     <div>
-      <h1>Gestión de requerimientos TI · Ene–Jun 2026</h1>
+      <h1>Gestión de requerimientos TI · __PERIODO__</h1>
       <p class="sub">Registros de horas por ticket, técnico y actividad · fuente: archivo limpio del Módulo 2</p>
     </div>
-    <button class="btn" id="tema" type="button" aria-label="Cambiar tema claro u oscuro">Tema: auto</button>
+    <button class="btn" id="tema" type="button">Tema: auto</button>
   </header>
 
   <section class="filters" aria-label="Filtros">
@@ -110,7 +110,7 @@
     <span class="hint">Clic en el anillo o en un punto del gráfico de dispersión para filtrar</span>
   </section>
 
-  <section class="kpis" aria-label="Indicadores">
+  <section class="kpis" aria-label="Indicadores" aria-live="polite">
     <div class="kpi"><div class="lbl">Q Tickets</div><div class="val" id="kTickets">–</div><div class="cap" id="cTickets"></div></div>
     <div class="kpi"><div class="lbl">Q Horas</div><div class="val" id="kHoras">–</div><div class="cap" id="cHoras"></div></div>
     <div class="kpi"><div class="lbl">Promedio Horas x Ticket</div><div class="val" id="kProm">–</div><div class="cap" id="cProm"></div></div>
@@ -131,7 +131,7 @@
     </article>
     <article class="card">
       <h2>Distribución · Q Tickets por Tipo</h2>
-      <p class="desc">REQ requerimiento · INC incidente · EXP · PRY proyecto.</p>
+      <p class="desc">REQ requerimiento · INC incidente · PRY proyecto · EXP (la fuente no define su significado).</p>
       <div class="chart" id="chTipo" role="img" aria-label="Gráfico de anillo de tickets por tipo"></div>
       <details><summary>Ver tabla</summary><div class="tbl" id="tbTipo"></div></details>
     </article>
@@ -224,7 +224,7 @@ function alternarFiltro(clave, valor) {
 }
 
 /* ---------- Agregación (equivalente a las medidas DAX) ---------- */
-function calcular() {
+function calcular(ignorar) {  // ignorar: dimensión que no se filtra (el visual de origen resalta en vez de filtrarse)
   const nMes = D.meses.length, nTipo = D.tipos.length, nUsu = D.usuarios.length, nAcc = D.acciones.length;
   const tickets = new Set(), resueltos = new Set();
   const mesTickets = Array.from({ length: nMes }, () => new Set()), mesHoras = new Array(nMes).fill(0);
@@ -235,9 +235,9 @@ function calcular() {
   for (let i = 0; i < N; i++) {
     const m = D.m[i];
     if (m < estado.mesDesde || m > estado.mesHasta) continue;
-    if (estado.tipo >= 0 && D.t[i] !== estado.tipo) continue;
+    if (ignorar !== "tipo" && estado.tipo >= 0 && D.t[i] !== estado.tipo) continue;
     if (estado.sistema >= 0 && D.s[i] !== estado.sistema) continue;
-    if (estado.usuario >= 0 && D.u[i] !== estado.usuario) continue;
+    if (ignorar !== "usuario" && estado.usuario >= 0 && D.u[i] !== estado.usuario) continue;
     if (estado.equipo >= 0 && D.e[i] !== estado.equipo) continue;
     const c = D.c[i], h = D.h[i];
     registros++; horas += h; tickets.add(c);
@@ -297,7 +297,7 @@ function opcionLinea(valores, etiqueta, formato, color) {
       formatter: (ps) => `<div style="color:${css("--text-2")};margin-bottom:4px">${etiquetaMes(meses[ps[0].dataIndex])}</div>` +
                          filaTooltip(color, etiqueta, formato(ps[0].value)) },
     xAxis: { type: "category", data: meses.map(etiquetaMes), boundaryGap: false, ...ejes(), splitLine: { show: false } },
-    yAxis: { type: "value", min: 0, ...ejes(), axisLine: { show: false }, axisLabel: { color: css("--text-2"), fontSize: 11, formatter: (v) => fmt0.format(v) } },
+    yAxis: { type: "value", min: 0, minInterval: 1, ...ejes(), axisLine: { show: false }, axisLabel: { color: css("--text-2"), fontSize: 11, formatter: (v) => fmt0.format(v) } },
     series: [{
       type: "line", data: datos, smooth: false, symbol: "circle", symbolSize: 8,
       lineStyle: { width: 2, color }, itemStyle: { color, borderColor: css("--surface"), borderWidth: 2 },
@@ -337,8 +337,9 @@ function opcionTipo(r) {
 
 function opcionUsuario(r) {
   const puntos = D.usuarios.map((u, i) => ({ u, i, t: r.usuTickets[i], h: r.usuHoras[i] })).filter((p) => p.t > 0);
-  const porTickets = [...puntos].sort((a, b) => b.t - a.t).slice(0, 3).map((p) => p.i);
-  const porRatio = [...puntos].sort((a, b) => b.h / b.t - a.h / a.t).slice(0, 2).map((p) => p.i);
+  const angosto = document.getElementById("chUsuario").clientWidth < 480;  // en móvil: menos etiquetas (la tabla tiene el detalle)
+  const porTickets = [...puntos].sort((a, b) => b.t - a.t).slice(0, angosto ? 1 : 3).map((p) => p.i);
+  const porRatio = [...puntos].sort((a, b) => b.h / b.t - a.h / a.t).slice(0, angosto ? 1 : 2).map((p) => p.i);
   const etiquetados = new Set([...porTickets, ...porRatio, estado.usuario]);
   // Si dos puntos etiquetados quedan muy cerca, el segundo lleva la etiqueta debajo
   const maxT = Math.max(1, ...puntos.map((p) => p.t)), maxH = Math.max(1, ...puntos.map((p) => p.h));
@@ -346,7 +347,7 @@ function opcionUsuario(r) {
   const yaUbicados = [];
   puntos.filter((p) => etiquetados.has(p.i)).sort((a, b) => b.t - a.t).forEach((p) => {
     const cerca = yaUbicados.some((q) => Math.abs(q.t - p.t) / maxT < 0.12 && Math.abs(q.h - p.h) / maxH < 0.12);
-    posicion[p.i] = cerca ? "bottom" : (p.t > 0.8 * maxT ? "left" : "right");
+    posicion[p.i] = cerca ? "bottom" : (p.t > 0.8 * maxT ? "top" : "right");
     yaUbicados.push(p);
   });
   const color = css("--s1");
@@ -364,11 +365,11 @@ function opcionUsuario(r) {
       type: "scatter", symbolSize: (v, p) => (p.data.idx === estado.usuario ? 15 : 11),
       itemStyle: { color, borderColor: css("--surface"), borderWidth: 2 },
       emphasis: { scale: 1.3, itemStyle: { borderColor: css("--text"), borderWidth: 2 } },
-      label: { show: true, position: "right", color: css("--text"), fontSize: 11, formatter: (p) => (etiquetados.has(p.data.idx) ? p.data.name : "") },
+      label: { show: true, silent: true, position: "right", color: css("--text"), fontSize: 11, formatter: (p) => (etiquetados.has(p.data.idx) ? p.data.name : "") },
       labelLayout: { hideOverlap: true },
       data: puntos.map((p) => ({ name: p.u, idx: p.i, value: [p.t, p.h],
         label: { position: posicion[p.i] || "right" },
-        itemStyle: p.i === estado.usuario ? { borderColor: css("--text"), borderWidth: 2 } : undefined })),
+        itemStyle: p.i === estado.usuario ? { borderColor: css("--text"), borderWidth: 2 } : (estado.usuario >= 0 ? { opacity: 0.35 } : undefined) })),
     }],
   };
 }
@@ -398,6 +399,9 @@ function opcionMatriz(r) {
                  calculable: false, text: [fmt0.format(max) + " h", "0 h"], textGap: 8, textStyle: { color: css("--text-2"), fontSize: 11 },
                  min: 0, max: max || 1, dimension: 2,
                  inRange: { color: [css("--seq-0"), css("--seq-1"), css("--seq-2"), css("--seq-3"), css("--seq-4"), css("--seq-5")] } },
+    dataZoom: estrecho && usuarios.length > 8 ? [
+      { type: "slider", xAxisIndex: 0, startValue: 0, endValue: 7, height: 16, bottom: 6, showDetail: false, brushSelect: false },
+      { type: "inside", xAxisIndex: 0, zoomOnMouseWheel: false, moveOnMouseMove: true, preventDefaultMouseMove: false }] : [],
     series: [{ type: "heatmap", data: datos, itemStyle: { borderColor: css("--surface"), borderWidth: 2, borderRadius: 2 },
                emphasis: { itemStyle: { borderColor: css("--text"), borderWidth: 1.5 } } }],
   };
@@ -430,8 +434,8 @@ function actualizar() {
 
   charts.chTickets.setOption(opcionLinea(r.mesTickets, "Q Tickets", (v) => fmt0.format(v), css("--s1")), true);
   charts.chHoras.setOption(opcionLinea(r.mesHoras, "Q Horas", (v) => fmt0.format(v), css("--s1")), true);
-  charts.chTipo.setOption(opcionTipo(r), true);
-  charts.chUsuario.setOption(opcionUsuario(r), true);
+  charts.chTipo.setOption(opcionTipo(estado.tipo >= 0 ? calcular("tipo") : r), true);
+  charts.chUsuario.setOption(opcionUsuario(estado.usuario >= 0 ? calcular("usuario") : r), true);
   charts.chMatriz.setOption(opcionMatriz(r), true);
 
   const rango = [];
@@ -461,6 +465,7 @@ function aplicarTema() {
   if (modo === "auto") document.documentElement.removeAttribute("data-theme");
   else document.documentElement.setAttribute("data-theme", modo);
   document.getElementById("tema").textContent = "Tema: " + nombres[modo];
+  document.getElementById("tema").setAttribute("aria-label", "Tema: " + nombres[modo] + " (cambiar)");
   crearCharts();
   actualizar();
 }

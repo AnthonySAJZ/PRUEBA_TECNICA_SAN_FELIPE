@@ -320,8 +320,6 @@ def generar_modelo(base: Path, ruta_csv: str) -> None:
         "",
         "annotation __PBI_TimeIntelligenceEnabled = 0",
         "",
-        "annotation PBIDesktopVersion = 2.140.679.0 (25.02)",
-        "",
         'annotation PBI_ProTooling = ["DevMode"]',
         "",
         "ref table Requerimientos",
@@ -606,7 +604,8 @@ def generar_reporte(base: Path) -> None:
         "$schema": ESQUEMA["report"],
         "themeCollection": {"baseTheme": {
             "name": "CY24SU10",
-            "reportVersionAtImport": {"visual": "2.2.0", "report": "3.0.0", "page": "2.0.0"},
+            # mismos valores que escribe Power BI Desktop para CY24SU10 con report 3.0.0
+            "reportVersionAtImport": {"visual": "1.8.95", "report": "2.0.95", "page": "1.3.95"},
             "type": "SharedResources",
         }},
         "objects": {"section": [{"properties": {"verticalAlignment": texto_lit("Top")}}]},
@@ -648,7 +647,13 @@ LEEME = """# Proyecto Power BI (PBIP)
 
 Abrir `Dashboard_Requerimientos.pbip` con Power BI Desktop (agosto 2025 o posterior).
 
-1. El reporte abre **sin datos** (el proyecto no versiona `cache.abf`).
+Usar una ruta corta: Power BI no admite rutas de proyecto de más de 260 caracteres. Clonar en
+`C:\\PruebaSanFelipe` (así `RutaArchivoCSV` ya es correcto) o extraer el ZIP en `C:\\` y renombrar la
+carpeta a `PruebaSanFelipe`. No abrir el .pbip desde dentro del ZIP ni desde OneDrive/SharePoint.
+
+1. El reporte abre **sin datos** (el proyecto no versiona `cache.abf`). Es normal ver una barra amarilla
+   de objetos calculados pendientes y un aviso en la segmentación Mes y en los gráficos de línea hasta
+   completar los pasos 2 y 3.
 2. Inicio > Transformar datos (flecha) > **Editar parámetros** > `RutaArchivoCSV` = ruta
    absoluta de `data\\clean\\RequerimientosPruebaDatos_Limpio.csv` en tu equipo > Aceptar > Aplicar cambios.
 3. Inicio > **Actualizar**.

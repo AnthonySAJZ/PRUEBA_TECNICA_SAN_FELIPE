@@ -12,4 +12,7 @@ Salidas de `sqlcmd` al ejecutar los scripts de `sql/` en orden, sobre **SQL Serv
 Diferencias respecto a una instalación en Windows (ya documentadas dentro de cada script):
 - Rutas: `/data/...` en lugar de `C:\PruebaSanFelipe\...`.
 - `02`: `@CodePage = 'RAW'` (Linux no admite `CODEPAGE = '1252'`).
-- `04`: archivo en UTF-16 con `DATAFILETYPE = 'widechar'` (Linux no admite `CODEPAGE = '65001'`).
+- `04`: archivo en UTF-16 con `DATAFILETYPE = 'widechar'` y `ROWTERMINATOR = '\n'` en lugar de `CODEPAGE = '65001'` (Linux no lo admite). La copia UTF-16 se genera con:
+  `python -c "t=open('data/clean/RequerimientosPruebaDatos_Limpio.csv',encoding='utf-8-sig').read(); open('Limpio_utf16.csv','w',encoding='utf-16',newline='').write(t)"`
+
+Comprobaciones adicionales hechas sobre el procedimiento de `02`: un archivo con solo la cabecera o una ruta NULL lanzan el error 50001 y conservan la carga anterior; una ruta de 165 caracteres carga normalmente; con `MAXERRORS = 0` cualquier fila rechazada aborta la carga (ROLLBACK).

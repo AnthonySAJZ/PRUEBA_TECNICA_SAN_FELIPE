@@ -1,6 +1,6 @@
 Changed database context to 'PruebaSanFelipe'.
-TotalRegistros|CodigosUnicos|CodigosUnicosNormalizados|RegistrosPromedioPorCodigo|RegistrosConCodigoRepetido
---------------|-------------|-------------------------|--------------------------|--------------------------
+TotalRegistros|CodigosUnicos|CodigosUnicosNormalizados|RegistrosPromedioPorCodigo|RegistrosAdicionalesPorRepeticion
+--------------|-------------|-------------------------|--------------------------|---------------------------------
 7158|3407|3406|2.10|3751
 Codigo|Registros|Usuarios|HorasTotales
 ------|---------|--------|------------
@@ -53,8 +53,8 @@ Accion|[11_Reunion Interna DEV]|150|2.10
 Accion|[05_Pruebas Unitarias]|139|1.94
 Accion|[09_Acompañamiento QA]|106|1.48
 Accion|[06_Pruebas Usuario Final]|97|1.36
-Accion|[24_Analisis_Datos]|66|.92
 Accion|[15_Acompañamiento SD]|66|.92
+Accion|[24_Analisis_Datos]|66|.92
 Accion|[19_Reunion Proveedores]|64|.89
 Accion|[10_Acompañamiento PRD]|48|.67
 Accion|[28_Reunion de Entendimiento_Datos]|39|.54
@@ -129,12 +129,15 @@ FechaTexto|Registros
 Q1_Horas|Mediana_Horas|Q3_Horas|IQR_Horas|CercoModerado_Horas|CercoExtremo_Horas|Minimo_Horas|Maximo_Horas|AtipicosModerados|AtipicosExtremos
 --------|-------------|--------|---------|-------------------|------------------|------------|------------|-----------------|----------------
 .67|1.50|3.00|2.33|6.50|10.00|.1667|16.0000|684|55
+DiasTecnicoMas12h|RegistrosEnEsosDias
+-----------------|-------------------
+39|195
 Usuario|FechaRegistro|Registros|HorasDia
 -------|-------------|---------|--------
-YSUYCO|2026-02-02|26|19.00
 JGUILLEN|2026-02-05|2|19.00
 JGUILLEN|2026-02-06|2|19.00
 YSUYCO|2026-01-20|10|19.00
+YSUYCO|2026-02-02|26|19.00
 RGREY|2026-02-04|4|16.50
 FPINEDO|2026-02-27|2|16.00
 TMACASSI|2026-01-02|1|16.00
@@ -144,7 +147,7 @@ FGONZALES|2026-01-07|1|15.00
 JREBAZA|2026-01-07|4|15.00
 JREBAZA|2026-02-12|18|14.50
 FPINEDO|2026-04-20|2|14.00
-YSUYCO|2026-01-02|1|14.00
+RGREY|2026-02-03|4|14.00
 RRUIZ|2026-02-12|5|14.00
 PrefijoCodigo|Tipo|Registros
 -------------|----|---------

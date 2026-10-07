@@ -10,8 +10,6 @@ annotation PBI_QueryOrder = ["RutaArchivoCSV","Requerimientos","_Medidas"]
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.140.679.0 (25.02)
-
 annotation PBI_ProTooling = ["DevMode"]
 
 ref table Requerimientos

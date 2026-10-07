@@ -1,0 +1,7 @@
+# Los CSV se versionan byte a byte: el original con CRLF (cp1252) y el limpio con LF (UTF-8).
+# Sin esto, Git para Windows (core.autocrlf=true) convertiría el limpio a CRLF y BULK INSERT
+# (ROWTERMINATOR 0x0a) dejaría un CR en la última columna.
+*.csv  -text
+*.xlsx binary
+*.pdf  binary
+*.pbix binary

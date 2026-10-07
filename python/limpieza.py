@@ -156,9 +156,14 @@ def estandarizar_categorias(df: pd.DataFrame, log: Bitacora) -> pd.DataFrame:
     log.registrar("2-Categorías", "Accion", "Ortografía inconsistente (Reunion/Analisis/Estimacion sin tilde)",
                   "Se uniforma con tildes", (antes.fillna("") != df["Accion"].fillna("")).sum())
 
-    # Estado: género y redacción
-    afectados = df["Estado"].isin(["Cerrada", "Resuelta", "Asignada a un grupo"]).sum()
-    df["Estado"] = df["Estado"].map(MAPA_ESTADO).where(df["Estado"].notna())
+    # Estado: género y redacción. Un valor fuera del catálogo se conserva y se informa
+    # (no se convierte en nulo en silencio).
+    desconocidos = sorted(set(df["Estado"].dropna()) - set(MAPA_ESTADO))
+    if desconocidos:
+        log.registrar("2-Categorías", "Estado", f"Valor fuera de catálogo {desconocidos}",
+                      "Se conserva; revisar en origen", df["Estado"].isin(desconocidos).sum())
+    afectados = df["Estado"].isin([k for k, v in MAPA_ESTADO.items() if k != v]).sum()
+    df["Estado"] = df["Estado"].replace(MAPA_ESTADO)
     log.registrar("2-Categorías", "Estado", "Mismo estado escrito distinto (Cerrada/Cerrado, Resuelta/Resuelto)",
                   "Se uniforma: Cerrado, Resuelto, Asignado", afectados)
     return df
@@ -178,9 +183,11 @@ def remover_duplicados(df: pd.DataFrame, log: Bitacora, exactos_origen: int) -> 
 def normalizar_fechas(df: pd.DataFrame, log: Bitacora) -> pd.DataFrame:
     """Regla 3: fechas dd/mm/yyyy -> DATE. Inválidas/vacías se imputan por posición.
 
-    El archivo viene ordenado cronológicamente (en dos bloques: soporte general y
-    equipo de Datos). Por eso un registro sin fecha válida se ubica en el día del
-    registro válido inmediatamente anterior del archivo.
+    El archivo viene ordenado cronológicamente en dos bloques (líneas 2-6,321 y
+    6,322-7,159; el segundo solo tiene registros de ACARRASCO, AINGA y RRUIZ). Por eso
+    un registro sin fecha válida se ubica en el día del registro válido
+    inmediatamente anterior del archivo. Ninguna fecha a imputar cae al inicio de
+    un bloque.
     """
     df = df.sort_values("FilaOrigen")
     fecha = pd.to_datetime(df["FechaOriginal"], format="%d/%m/%Y", errors="coerce")
@@ -203,7 +210,7 @@ def normalizar_fechas(df: pd.DataFrame, log: Bitacora) -> pd.DataFrame:
     log.registrar("3-Fechas", "Fecha", "Fechas imputadas que estaban entre dos registros del mismo día",
                   "Informativo: imputación de confianza alta", mismo_dia.sum())
     log.registrar("3-Fechas", "Fecha", "Texto dd/mm/yyyy",
-                  "Se convierte a fecha ISO (yyyy-mm-dd) + Año, Mes, AñoMes", len(df))
+                  "Se convierte a fecha ISO (yyyy-mm-dd) + Anio, Mes, AnioMes", len(df))
 
     df["Anio"] = df["FechaRegistro"].dt.year
     df["Mes"] = df["FechaRegistro"].dt.month
@@ -251,7 +258,8 @@ def tratar_horas(df: pd.DataFrame, log: Bitacora) -> pd.DataFrame:
     df.loc[con_usuario, "FlagDiaSobrecargado"] = (carga > JORNADA_SOBRECARGA).astype(int)
     dias = (df[con_usuario].groupby(["Usuario", "FechaRegistro"])["Horas"].sum() > JORNADA_SOBRECARGA).sum()
     log.registrar("4-Horas", "Horas",
-                  f"Usuario con más de {JORNADA_SOBRECARGA:.0f} h registradas en un mismo día ({dias} días-usuario)",
+                  f"Usuario con más de {JORNADA_SOBRECARGA:.0f} h en un mismo día, tras acotar registros "
+                  f"extremos a {tope:.0f} h ({dias} días-usuario)",
                   "Se marca FlagDiaSobrecargado (no se altera: no se sabe qué registro sobra)",
                   df["FlagDiaSobrecargado"].sum())
     return df
@@ -300,7 +308,15 @@ def imputar_categorias(df: pd.DataFrame, log: Bitacora) -> pd.DataFrame:
 def derivar_columnas(df: pd.DataFrame, log: Bitacora) -> pd.DataFrame:
     partes = df["Accion"].str.extract(r"^(\d+)_(.*)$")
     df["AccionCodigo"] = pd.to_numeric(partes[0], errors="coerce").astype("Int64")
+    # Equipo clasifica la ACTIVIDAD (catálogo *_Datos), no a la persona: un mismo
+    # técnico puede tener registros de ambos equipos.
     df["Equipo"] = np.where(df["Accion"].str.endswith("_Datos"), "Datos", "Aplicaciones")
+    repetidos = df.groupby("AccionCodigo")["Accion"].nunique()
+    repetidos = repetidos[repetidos > 1].index
+    if len(repetidos):
+        acciones = sorted(df.loc[df["AccionCodigo"].isin(repetidos), "Accion"].unique())
+        log.registrar("5-Derivadas", "AccionCodigo", f"Número de actividad compartido por acciones distintas {acciones}",
+                      "Se informa, no se corrige: usar Accion como clave", df["AccionCodigo"].isin(repetidos).sum())
 
     # Estado del ticket = estado de su último registro (el estado cambia en el tiempo:
     # un ticket puede figurar 'Asignado' y luego 'Cerrado').
@@ -331,8 +347,10 @@ def exportar(df: pd.DataFrame, log: pd.DataFrame, salida: Path) -> None:
     df.to_csv(salida / f"{NOMBRE_SALIDA}.csv", index=False, encoding="utf-8-sig", lineterminator="\n")
     log.to_csv(salida / "log_limpieza.csv", index=False, encoding="utf-8-sig", lineterminator="\n")
 
-    with pd.ExcelWriter(salida / f"{NOMBRE_SALIDA}.xlsx", engine="openpyxl") as xl:
-        df.to_excel(xl, sheet_name="Datos", index=False)
+    # En Excel la fecha va como fecha real (en el CSV queda como texto ISO)
+    datos_xl = df.assign(FechaRegistro=pd.to_datetime(df["FechaRegistro"]).dt.date)
+    with pd.ExcelWriter(salida / f"{NOMBRE_SALIDA}.xlsx", engine="openpyxl", date_format="yyyy-mm-dd") as xl:
+        datos_xl.to_excel(xl, sheet_name="Datos", index=False)
         diccionario().to_excel(xl, sheet_name="Diccionario", index=False)
         log.to_excel(xl, sheet_name="Log_Limpieza", index=False)
     print(f"\nArchivos generados en {salida}")
@@ -345,17 +363,24 @@ def diccionario() -> pd.DataFrame:
         ("Tipo", "Texto", "Tipo de atención: REQ, INC, EXP, PRY"),
         ("SistemaCanal", "Texto", "Sistema o canal atendido (grupo funcional)"),
         ("Usuario", "Texto", "Técnico que registró las horas"),
-        ("Equipo", "Texto", "Datos si la acción es del catálogo *_Datos; si no, Aplicaciones"),
-        ("AccionCodigo", "Entero", "Número de la actividad del catálogo"),
+        ("Equipo", "Texto", "Clasifica la actividad: Datos si la acción es del catálogo *_Datos; si no, Aplicaciones"),
+        ("AccionCodigo", "Entero", "Número de la actividad del catálogo (el 24 lo comparten dos acciones: usar Accion como clave)"),
         ("Accion", "Texto", "Actividad realizada (catálogo estandarizado)"),
         ("FechaRegistro", "Fecha", "Fecha del registro (yyyy-mm-dd)"),
-        ("Anio / Mes / AnioMes", "Entero / Texto", "Derivadas de FechaRegistro"),
+        ("Anio", "Entero", "Año de FechaRegistro"),
+        ("Mes", "Entero", "Mes de FechaRegistro (1-12)"),
+        ("AnioMes", "Texto", "Año y mes de FechaRegistro (yyyy-mm)"),
         ("HorasOriginal", "Decimal", "Horas del origen en decimal (vacío si no venían)"),
         ("Horas", "Decimal", "Horas tratadas: imputadas si faltaban, acotadas si eran extremas"),
         ("Estado", "Texto", "Estado del ticket en ese registro (estandarizado)"),
         ("EstadoTicket", "Texto", "Estado del último registro del ticket"),
         ("EsResuelto", "0/1", "1 si EstadoTicket es Cerrado o Resuelto"),
-        ("Flag*", "0/1", "Marcas de trazabilidad de cada corrección aplicada"),
+        ("FlagFechaImputada", "0/1", "1 si la fecha venía vacía o inválida y se imputó por posición"),
+        ("FlagHorasImputadas", "0/1", "1 si Horas venía vacía y se usó la mediana de su acción"),
+        ("FlagHorasAjustadas", "0/1", "1 si HorasOriginal superaba 10 h (Q3 + 3·IQR) y se acotó a 10 h"),
+        ("FlagEstadoImputado", "0/1", "1 si Estado venía nulo (se tomó del ticket o quedó 'Sin Estado')"),
+        ("FlagSistemaImputado", "0/1", "1 si SistemaCanal venía vacío (se tomó del ticket o quedó 'NO ESPECIFICADO')"),
+        ("FlagDiaSobrecargado", "0/1", "1 si el técnico suma más de 12 h ese día (tras acotar a 10 h); solo se marca"),
         ("FilaOrigen", "Entero", "Línea del CSV original (la 1 es la cabecera)"),
         ("FechaOriginal", "Texto", "Fecha tal como venía en el CSV"),
     ]

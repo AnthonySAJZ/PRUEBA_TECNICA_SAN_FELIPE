@@ -90,9 +90,9 @@ def metricas(d: pd.DataFrame) -> dict:
     pry_mes = d[d["Tipo"] == "PRY"].groupby("AnioMes")["Horas"].sum() / mes["h"]
     k["mes"] = mes
     k["pico_mes"], k["pico_t"] = mes["t"].idxmax(), mes["t"].max()
+    k["ini_mes"], k["ini_t"] = mes.index[0], mes["t"].iat[0]
     k["ult_mes"], k["ult_t"] = mes.index[-1], mes["t"].iat[-1]
     k["hpt_ini"], k["hpt_fin"] = mes["hpt"].iat[0], mes["hpt"].iat[-1]
-    k["pry_min_mes"], k["pry_min"] = pry_mes.idxmin(), pry_mes.min()
     k["pry_fin"] = pry_mes.iat[-1]
 
     tipo = d.groupby("Tipo").agg(t=("Codigo", "nunique"), h=("Horas", "sum"))
@@ -101,8 +101,30 @@ def metricas(d: pd.DataFrame) -> dict:
     k["tipo"] = tipo
 
     por_ticket = d.groupby("Codigo")["Horas"].sum().sort_values(ascending=False)
+    k["med_ticket"] = por_ticket.median()
     grandes = por_ticket[por_ticket > 40]
     k["n_grandes"], k["pt_grandes"], k["ph_grandes"] = len(grandes), len(grandes) / k["tickets"], grandes.sum() / k["horas"]
+    # Efecto mezcla: cuánto del alza de horas por ticket viene de los tickets largos
+    es_grande = d["Codigo"].isin(grandes.index)
+    chicos = d[~es_grande].groupby("AnioMes").agg(t=("Codigo", "nunique"), h=("Horas", "sum"))
+    k["hpt_chicos_ini"], k["hpt_chicos_fin"] = (chicos.h / chicos.t).iat[0], (chicos.h / chicos.t).iat[-1]
+    part_grandes = d[es_grande].groupby("AnioMes")["Horas"].sum() / mes["h"]
+    k["pg_ini"], k["pg_fin"] = part_grandes.iat[0], part_grandes.iat[-1]
+    # Tickets largos trabajados por una sola persona
+    tecnicos_ticket = d.groupby("Codigo")["Usuario"].nunique()
+    solos = grandes[tecnicos_ticket.reindex(grandes.index) == 1]
+    k["n_solo"], k["h_solo"] = len(solos), solos.sum()
+    k["solo_top"] = (d[d["Codigo"].isin(solos.index)].groupby("Usuario")["Codigo"].nunique()
+                     .sort_values(ascending=False).head(4))
+    pry_tecnicos = d[d["Tipo"] == "PRY"].groupby("Codigo")["Usuario"].nunique()
+    k["pry_solo"], k["pry_n"] = int((pry_tecnicos == 1).sum()), len(pry_tecnicos)
+    mayor_pry = por_ticket[por_ticket.index.isin(pry_tecnicos.index)]
+    mayor_pry = mayor_pry[mayor_pry.index.str.contains(" 2026-")].index[0]   # el PRY abierto en 2026 con más horas
+    aporte = d[d["Codigo"] == mayor_pry].groupby("Usuario")["Horas"].sum().sort_values(ascending=False)
+    k["pry26"], k["pry26_h"], k["pry26_u"], k["pry26_share"] = mayor_pry, aporte.sum(), aporte.index[0], aporte.iat[0] / aporte.sum()
+    # Tickets de más de 1,000 h y su sistema
+    mil = por_ticket[por_ticket > 1000]
+    k["mil"] = [(c, d.loc[d["Codigo"] == c, "SistemaCanal"].iat[0]) for c in mil.index]
     viejos = d[d["AnioTicket"] < 2026]
     k["n_viejos"], k["pt_viejos"], k["ph_viejos"] = viejos["Codigo"].nunique(), viejos["Codigo"].nunique() / k["tickets"], viejos["Horas"].sum() / k["horas"]
     top2024 = por_ticket[por_ticket.index.str.contains(" 2024-")].head(3)
@@ -119,16 +141,20 @@ def metricas(d: pd.DataFrame) -> dict:
     k["top3"], k["top3_pt"] = top3, d[d["Usuario"].isin(top3.index)]["Codigo"].nunique() / k["tickets"]
     sobre = reales[reales["FlagDiaSobrecargado"] == 1].groupby("Usuario")["FechaRegistro"].nunique().sort_values(ascending=False)
     k["sobre"] = sobre.head(3)
+    dias_orig = reales.assign(h=reales["HorasOriginal"].fillna(reales["Horas"])).groupby(["Usuario", "FechaRegistro"])["h"].sum()
+    k["dias_12_orig"] = int((dias_orig > 12).sum())
+    k["max_pt_tecnico"] = tec["t"].max() / k["tickets"]
+    k["max_pt_nombre"] = tec["t"].idxmax()
 
     datos = d[d["SistemaCanal"] == "DATOS"]
     k["datos_h"], k["datos_t"] = datos["Horas"].sum(), datos["Codigo"].nunique()
+    k["datos_med"] = datos.groupby("Codigo")["Horas"].sum().median()
     k["datos_core"] = reales[reales["Equipo"] == "Datos"].groupby("Usuario")["Horas"].sum().sort_values(ascending=False).head(2)
 
-    an = d[d["Accion"] == "02_Análisis"]
-    k["an_reg"], k["an_h"] = len(an) / k["registros"], an["Horas"].sum() / k["horas"]
-    k["an_dev"] = an["Horas"].sum() / d.loc[d["Accion"] == "04_Desarrollo", "Horas"].sum()
-
     k["inc_h_ahorro"] = tipo.loc["INC", "h"] * 0.20
+    inc = d[d["Tipo"] == "INC"].groupby("SistemaCanal")["Codigo"].nunique().sort_values(ascending=False).head(2)
+    k["inc_top"] = inc
+    k["pct_cerrado_reg"] = (d["Estado"] == "Cerrado").mean()
     return k
 
 
@@ -155,7 +181,7 @@ def grafico_tecnicos(tec: pd.DataFrame) -> str:
     fig, ax = plt.subplots(figsize=(3.6, 3.0))
     ax.scatter(tec["t"], tec["h"], s=28, color=AZUL, edgecolor="white", linewidth=1.2, zorder=3)
     destacar = {"JREBAZA": (0, -11, "center"), "JROSALES": (-2, 6, "center"), "PBARDALES": (-6, -11, "right"),
-                "SRODRIGUEZ": (6, -8, "left"), "MCARRASCO": (6, -3, "left"), "ACARRASCO": (6, 3, "left")}
+                "SRODRIGUEZ": (6, -2, "left"), "MCARRASCO": (6, -3, "left"), "ACARRASCO": (6, 3, "left")}
     for u, (dx, dy, ha) in destacar.items():
         if u in tec.index:
             ax.annotate(u, (tec.loc[u, "t"], tec.loc[u, "h"]), xytext=(dx, dy), textcoords="offset points",
@@ -179,9 +205,15 @@ def construir_html(k: dict, autor: str | None) -> str:
     datos_core = " y ".join(k["datos_core"].index)
     tec = k["tec"]
     linea_autor = f" · {html.escape(autor)}" if autor else ""
+    titulo_doc = "Informe ejecutivo · Operación TI" + (f" · {html.escape(autor)}" if autor else "")
+    solo_top = ", ".join(f"{u} ({n})" for u, n in k["solo_top"].items())
+    inc_top = " y ".join(k["inc_top"].index)
+    inc_top_n = " y ".join(n0(v) for v in k["inc_top"].values)
+    mil = " y ".join(f"{c} en {s}" for c, s in k["mil"])
+    sistemas_mil = " y ".join(s for _, s in k["mil"])
 
     return f"""<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><title>Informe ejecutivo · Operación TI</title>
+<html lang="es"><head><meta charset="utf-8"><title>{titulo_doc}</title>
 <style>
   @page {{ size: A4; margin: 13mm 14mm 12mm; }}
   * {{ box-sizing: border-box; }}
@@ -217,25 +249,26 @@ def construir_html(k: dict, autor: str | None) -> str:
 <div class="kpis">
   <div class="kpi"><div class="l">Q Tickets</div><div class="v">{n0(k["tickets"])}</div><div class="c">tickets únicos atendidos</div></div>
   <div class="kpi"><div class="l">Q Horas</div><div class="v">{n0(k["horas"])}</div><div class="c">horas invertidas</div></div>
-  <div class="kpi"><div class="l">Promedio Horas x Ticket</div><div class="v">{k["h_ticket"]:.2f}</div><div class="c">mediana por registro: 1.5 h</div></div>
+  <div class="kpi"><div class="l">Promedio Horas x Ticket</div><div class="v">{k["h_ticket"]:.2f}</div><div class="c">mediana por ticket: {k["med_ticket"]:.1f} h</div></div>
   <div class="kpi"><div class="l">% Resueltos</div><div class="v">{pct(k["pct_res"], 1)}</div><div class="c">{n0(k["resueltos"])} cerrados o resueltos</div></div>
 </div>
 
 <h2>1. Principales hallazgos</h2>
 <ul>
-  <li><b>La capacidad está copada.</b> Cada técnico registra en promedio {k["h_dia"]:.1f} h por día trabajado (jornada ≈ 9.5 h).
-      La mejora no vendrá de "más horas", sino de cómo se reparten.</li>
-  <li><b>Se atienden menos tickets y cada uno cuesta más.</b> Los tickets atendidos bajaron de {n0(k["pico_t"])} ({etq(k["pico_mes"])}) a {n0(k["ult_t"])} ({etq(k["ult_mes"])}), −{pct(1 - k["ult_t"] / k["pico_t"])},
-      mientras las horas por ticket subieron de {k["hpt_ini"]:.1f} h a {k["hpt_fin"]:.1f} h (+{pct(k["hpt_fin"] / k["hpt_ini"] - 1)}).
-      En paralelo, los proyectos pasaron de {pct(k["pry_min"])} de las horas en {etq(k["pry_min_mes"])} a {pct(k["pry_fin"])} en {etq(k["ult_mes"])}.</li>
+  <li><b>Las horas registradas cubren la jornada.</b> Cada técnico registra en promedio {k["h_dia"]:.1f} h por día trabajado (jornada observada ≈ 9.5 h, la mediana de los propios registros).
+      El registro de horas no permite medir holgura: la mejora pasa por cómo se reparte el trabajo, no por sumar horas.</li>
+  <li><b>Menos tickets por mes y más horas por ticket.</b> De {etq(k["ini_mes"])} a {etq(k["ult_mes"])} los tickets atendidos bajaron de {n0(k["ini_t"])} a {n0(k["ult_t"])} (−{pct(1 - k["ult_t"] / k["ini_t"])}; pico de {n0(k["pico_t"])} en {etq(k["pico_mes"])})
+      y las horas por ticket subieron de {k["hpt_ini"]:.1f} h a {k["hpt_fin"]:.1f} h (+{pct(k["hpt_fin"] / k["hpt_ini"] - 1)}).
+      El alza viene sobre todo de los tickets de más de 40 h, que pasaron de {pct(k["pg_ini"])} a {pct(k["pg_fin"])} de las horas del mes; sin ellos, el promedio va de {k["hpt_chicos_ini"]:.1f} h a {k["hpt_chicos_fin"]:.1f} h.</li>
   <li><b>El esfuerzo está muy concentrado.</b> Los proyectos (PRY) son el {pct(tipo.loc["PRY", "pt"], 1)} de los tickets pero consumen el {pct(tipo.loc["PRY", "ph"])} de las horas
       ({n0(tipo.loc["PRY", "hpt"])} h por ticket). Los {k["n_grandes"]} tickets de más de 40 h ({pct(k["pt_grandes"])} del total) explican el {pct(k["ph_grandes"])} de las horas.</li>
-  <li><b>Backlog heredado.</b> {k["n_viejos"]} tickets abiertos antes de 2026 ({pct(k["pt_viejos"], 1)}) absorben el {pct(k["ph_viejos"], 1)} de las horas del semestre;
+  <li><b>Trabajo heredado de años anteriores.</b> {k["n_viejos"]} tickets abiertos antes de 2026 ({pct(k["pt_viejos"], 1)}) absorben el {pct(k["ph_viejos"], 1)} de las horas del semestre;
       solo tres suman {n0(k["top2024_h"])} h: {top2024}. El REQ 2024-022552 pasó por {k["usuarios_022552"]} técnicos.</li>
   <li><b>La demanda operativa es alta en volumen y baja en esfuerzo.</b> Los incidentes (INC) son el {pct(tipo.loc["INC", "pt"])} de los tickets con {tipo.loc["INC", "hpt"]:.1f} h por ticket;
       el sistema SIC concentra el {pct(k["sic_reg"])} de los registros.</li>
   <li><b>Calidad del dato mejorable.</b> Se corrigieron 83 registros duplicados, 22 fechas inexistentes (p. ej. 32/11/2026), 55 registros de más de 10 h y 39 registros sin usuario
-      (todos del 16 y 17 de abril). Tras la limpieza, el dataset queda trazable y sin nulos.</li>
+      (todos del 16 y 17 de abril). Tras la limpieza, el dataset queda trazable y sin nulos. El estado es una foto al cierre del extracto
+      ({pct(k["pct_cerrado_reg"])} de los registros figura Cerrado, incluso en tickets que siguieron recibiendo horas): el % Resueltos puede sobreestimar los cierres.</li>
 </ul>
 <div class="fig">{grafico_tendencia(mes)}</div>
 <p class="nota">Fuente: archivo limpio del Módulo 2. Se muestran dos gráficos separados en lugar de uno con doble eje.</p>
@@ -246,30 +279,32 @@ def construir_html(k: dict, autor: str | None) -> str:
   <tr><th>Cuello de botella</th><th>Evidencia</th></tr>
   <tr><td><b>Cola operativa en 3 personas</b></td>
       <td>{", ".join(f"{u} ({n0(r.t)})" for u, r in top3.iterrows())} atienden el {pct(k["top3_pt"])} de los tickets (SIC, APP/WEB, SAP). Una ausencia frena la atención diaria.</td></tr>
-  <tr><td><b>Proyectos que dependen de una persona</b></td>
-      <td>SRODRIGUEZ: {n0(tec.loc["SRODRIGUEZ", "t"])} tickets con {n0(tec.loc["SRODRIGUEZ", "hpt"])} h c/u; MCARRASCO: 1 ticket de {n0(tec.loc["MCARRASCO", "h"])} h; ACARRASCO: {n0(tec.loc["ACARRASCO", "hpt"])} h por ticket. El conocimiento no está distribuido.</td></tr>
+  <tr><td><b>Tickets largos en una sola persona</b></td>
+      <td>{k["n_solo"]} de los {k["n_grandes"]} tickets de más de 40 h ({n0(k["h_solo"])} h) los trabaja un solo técnico: {solo_top}. {k["pry_solo"]} de los {k["pry_n"]} PRY tienen un solo técnico,
+      y en el {k["pry26"]} ({n0(k["pry26_h"])} h) {k["pry26_u"]} aporta el {pct(k["pry26_share"])}.</td></tr>
   <tr><td><b>Grupo Datos</b></td>
-      <td>{datos_core} cargan el trabajo del catálogo *_Datos; el grupo DATOS suma {n0(k["datos_h"])} h en solo {k["datos_t"]} tickets ({n0(k["datos_h"] / k["datos_t"])} h por ticket).</td></tr>
-  <tr><td><b>Grupos HCE UNIFICADA y MAC</b></td>
-      <td>Cada uno sostiene un proyecto de más de 1,000 h que corre todo el semestre (REQ 2024-023822 y REQ 2024-022552).</td></tr>
-  <tr><td><b>Fase de análisis</b></td>
-      <td>"02_Análisis" es el {pct(k["an_reg"])} de los registros y el {pct(k["an_h"])} de las horas: {k["an_dev"]:.2f} h de análisis por cada hora de desarrollo.</td></tr>
+      <td>{datos_core} concentran las horas de las acciones *_Datos; el grupo DATOS suma {n0(k["datos_h"])} h en {k["datos_t"]} tickets
+      ({n0(k["datos_h"] / k["datos_t"])} h por ticket en promedio, mediana {k["datos_med"]:.0f} h: el {k["pry26"]} pesa mucho).</td></tr>
+  <tr><td><b>Grupos {sistemas_mil}</b></td>
+      <td>Cada uno sostiene un ticket de más de 1,000 h con horas de enero a junio ({mil}).</td></tr>
   <tr><td><b>Sobrecarga diaria</b></td>
-      <td>{k["dias_12"]} días-técnico con más de 12 h registradas; los más frecuentes: {sobre}.</td></tr>
+      <td>{k["dias_12"]} días-técnico con más de 12 h tras acotar registros a 10 h ({k["dias_12_orig"]} con las horas originales); los más frecuentes: {sobre}.</td></tr>
 </table>
 <div class="fig">{grafico_tecnicos(tec)}
-<p class="nota">Abajo a la derecha: muchos tickets cortos. Arriba a la izquierda: pocos tickets muy largos.</p></div>
+<p class="nota">A la derecha: muchos tickets cortos (JREBAZA, JROSALES, PBARDALES). A la izquierda: pocos tickets de muchas horas.
+La altura refleja sobre todo los días trabajados: quienes se incorporaron durante el semestre quedan más abajo.</p></div>
 </div>
 
 <h2>3. Recomendaciones basadas en datos</h2>
-<div class="rec"><div class="t">1. Gestionar como proyecto todo ticket de más de 40 h y cerrar el backlog heredado.</div>
-  Los {k["n_grandes"]} tickets &gt; 40 h consumen el {pct(k["ph_grandes"])} de las horas sin un control propio. Llevarlos a un portafolio con responsable, hitos, criterio de cierre y
-  un tope de capacidad (p. ej. ≤ 25% de las horas del mes; en {etq(k["ult_mes"])} los PRY ya usaron {pct(k["pry_fin"])}). Priorizar el cierre o replanteo de los tres tickets de 2024.
-  <div class="kpi-meta">Meta: horas por ticket mensual ≤ 4.5 h · horas en tickets anteriores a 2026 &lt; 20%.</div></div>
+<div class="rec"><div class="t">1. Gestionar como proyecto todo ticket de más de 40 h.</div>
+  Los {k["n_grandes"]} tickets &gt; 40 h consumen el {pct(k["ph_grandes"])} de las horas. Llevarlos a un portafolio con responsable, hitos, criterio de cierre y
+  un tope de capacidad (p. ej. ≤ 25% de las horas del mes; en {etq(k["ult_mes"])} los PRY ya usaron {pct(k["pry_fin"])}). Validar el estado real de los tres tickets de 2024:
+  figuran Cerrado pero suman {n0(k["top2024_h"])} h en el semestre.
+  <div class="kpi-meta">Meta: horas por ticket mensual ≤ 4.5 h (hoy {k["hpt_fin"]:.1f} h) · horas en tickets anteriores a 2026 &lt; 20% (hoy {pct(k["ph_viejos"], 1)}).</div></div>
 <div class="rec"><div class="t">2. Repartir la cola operativa y reducir la dependencia de personas clave.</div>
-  Crear una célula rotativa de primer nivel para INC/EXP de SIC y APP/WEB, con entrenamiento cruzado, y una base de conocimiento para los incidentes repetitivos:
-  bajar 20% el esfuerzo en INC libera ≈ {n0(k["inc_h_ahorro"])} h por semestre. Asignar un respaldo documentado a cada proyecto con un solo técnico.
-  <div class="kpi-meta">Meta: ningún técnico con más del 25% de los tickets · 100% de proyectos con respaldo.</div></div>
+  Crear una célula rotativa de primer nivel para los incidentes de {inc_top} ({inc_top_n} INC), con entrenamiento cruzado, y una base de conocimiento para los incidentes repetitivos:
+  bajar 20% el esfuerzo en INC libera ≈ {n0(k["inc_h_ahorro"])} h por semestre. Asignar un respaldo documentado a cada ticket largo con un solo técnico (hoy {k["n_solo"]}).
+  <div class="kpi-meta">Meta: ningún técnico con más del 25% de los tickets (hoy {k["max_pt_nombre"]}, {pct(k["max_pt_tecnico"], 1)}) · 100% de tickets &gt; 40 h con respaldo.</div></div>
 <div class="rec"><div class="t">3. Asegurar la calidad del registro de horas y seguirla cada mes.</div>
   Validar en la herramienta: fecha con calendario, listas cerradas para estado, acción y sistema, usuario obligatorio, tope de 10 h por registro y alerta sobre 12 h por día.
   Publicar el dashboard (medidas DAX del Módulo 4) como tablero mensual del área.
@@ -287,7 +322,11 @@ def exportar_pdf(origen: Path, destino: Path) -> bool:
         try:
             navegador = p.chromium.launch()
         except Exception:
-            navegador = p.chromium.launch(executable_path="/opt/pw-browsers/chromium")
+            alterno = Path("/opt/pw-browsers/chromium")  # navegador preinstalado del entorno de generación
+            if not alterno.exists():
+                print('Falta el navegador de Playwright: ejecute "playwright install chromium". Se generó solo el HTML.')
+                return False
+            navegador = p.chromium.launch(executable_path=str(alterno))
         pagina = navegador.new_page()
         pagina.goto(origen.resolve().as_uri())
         pagina.pdf(path=str(destino), format="A4", print_background=True, prefer_css_page_size=True)

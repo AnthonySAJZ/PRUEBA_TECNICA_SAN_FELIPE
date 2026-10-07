@@ -5,13 +5,13 @@ Metrica|Antes|Despues|Diferencia
 -------|-----|-------|----------
 Filas|7158.00|7075.00|-83.00
 Tickets únicos|3407.00|3406.00|-1.00
-Fecha nula/ inválida -> imputada|55.00|54.00|-1.00
+Fecha nula/inválida -> imputada|55.00|54.00|-1.00
 Horas nulas -> imputadas|45.00|45.00|.00
 Usuario vacío -> NO IDENTIFICADO|39.00|39.00|.00
 Estado nulo -> Sin Estado (tras imputar)|105.00|49.00|-56.00
-Valores distintos de Estado|6.00|4.00|-2.00
-Valores distintos de Acción|28.00|28.00|.00
-Horas totales|17208.91|16978.75|-230.16
+Valores distintos de Estado (sin vacío)|5.00|3.00|-2.00
+Valores distintos de Acción (sin vacío)|28.00|27.00|-1.00
+Horas totales|17208.92|16978.75|-230.17
 Horas máximas en un registro|16.00|10.00|-6.00
 
 (10 rows affected)

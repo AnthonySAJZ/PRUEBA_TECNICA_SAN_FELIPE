@@ -10,8 +10,12 @@
      3. Inserta en dbo.Requerimientos convirtiendo FECHA y HORAS a su tipo.
      4. Devuelve un resumen de control (filas leídas / cargadas / sin convertir).
 
-   Nota: la ruta es la del SERVIDOR SQL (no la de la PC cliente). La cuenta del
-   servicio de SQL Server necesita permiso de lectura sobre esa carpeta.
+   Requisitos: SQL Server 2017+ (BULK INSERT con FORMAT = 'CSV').
+   La ruta es la del SERVIDOR SQL (no la de la PC cliente). Con autenticación de
+   Windows el archivo se lee con tu usuario; con un login SQL (p. ej. sa) se lee
+   con la cuenta del servicio (NT Service\MSSQLSERVER), que necesita permiso de
+   lectura sobre la carpeta.
+   Ejecutar con sqlcmd -f 65001 (los scripts están en UTF-8).
    ============================================================================ */
 
 USE PruebaSanFelipe;
@@ -34,10 +38,12 @@ BEGIN
         TRUNCATE TABLE stg.RequerimientosRaw;
 
         /* 2) Carga masiva. Se arma dinámicamente porque BULK INSERT no acepta
-              variables en FROM ni en CODEPAGE. QUOTENAME evita inyección. */
+              variables en FROM ni en CODEPAGE. REPLACE duplica las comillas
+              simples (evita inyección; QUOTENAME devolvería NULL con rutas de
+              más de 128 caracteres). */
         SET @sql = N'
             BULK INSERT stg.vw_RequerimientosRaw_Carga
-            FROM ' + QUOTENAME(@RutaArchivo, '''') + N'
+            FROM N''' + REPLACE(@RutaArchivo, N'''', N'''''') + N'''
             WITH (
                 FORMAT          = ''CSV'',
                 FIRSTROW        = 2,          -- salta la cabecera
@@ -45,9 +51,14 @@ BEGIN
                 ROWTERMINATOR   = ''0x0d0a'', -- CRLF
                 CODEPAGE        = ' + QUOTENAME(@CodePage, '''') + N',
                 KEEPNULLS,                    -- los campos vacíos no toman DEFAULT
+                MAXERRORS       = 0,          -- cualquier fila rechazada aborta la carga
                 TABLOCK
             );';
         EXEC sys.sp_executesql @sql;
+
+        /* Un archivo sin filas de datos (o una ruta NULL) no debe borrar la carga anterior */
+        IF NOT EXISTS (SELECT 1 FROM stg.RequerimientosRaw)
+            THROW 50001, N'El archivo no tiene filas de datos: no se reemplaza la carga anterior.', 1;
 
         /* 3) Paso a la tabla tipada. Solo se convierten tipos: los textos se
               conservan tal cual para perfilar la calidad del origen. */

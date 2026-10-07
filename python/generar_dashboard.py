@@ -13,6 +13,7 @@ Uso:
 
 from __future__ import annotations
 
+import html as html_mod
 import json
 from pathlib import Path
 
@@ -54,10 +55,16 @@ def main() -> None:
     }
     resumen = (f"{len(df):,} registros · {df['Codigo'].nunique():,} tickets · "
                f"{df['FechaRegistro'].min()} a {df['FechaRegistro'].max()}")
+    meses_es = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Set", "Oct", "Nov", "Dic"]
+    ini, fin = df["AnioMes"].min(), df["AnioMes"].max()
+    periodo = (f"{meses_es[int(ini[5:7]) - 1]}–{meses_es[int(fin[5:7]) - 1]} {fin[:4]}" if ini[:4] == fin[:4]
+               else f"{meses_es[int(ini[5:7]) - 1]} {ini[:4]} – {meses_es[int(fin[5:7]) - 1]} {fin[:4]}")
 
     html = PLANTILLA.read_text(encoding="utf-8")
-    html = html.replace("__DATA__", json.dumps(datos, ensure_ascii=False, separators=(",", ":")))
-    html = html.replace("__RESUMEN__", resumen)
+    # "<" escapado: un texto con "</script>" en los datos no puede cerrar el bloque de script
+    html = html.replace("__DATA__", json.dumps(datos, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c"))
+    html = html.replace("__RESUMEN__", html_mod.escape(resumen))
+    html = html.replace("__PERIODO__", html_mod.escape(periodo))
     html = html.replace("__ECHARTS__", ECHARTS.read_text(encoding="utf-8"))
     SALIDA.write_text(html, encoding="utf-8")
     print(f"Dashboard generado: {SALIDA} ({SALIDA.stat().st_size / 1024:,.0f} KB)")
