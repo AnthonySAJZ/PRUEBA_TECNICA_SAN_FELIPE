@@ -1,0 +1,10 @@
+# Módulos 2, 3 y 4 (limpieza, EDA y dashboard)
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.7
+openpyxl>=3.1
+jinja2>=3.1
+notebook>=7.0
+# Módulo 5 (solo para exportar el informe a PDF; sin esto se genera el HTML)
+playwright>=1.40

@@ -1,0 +1,27 @@
+﻿Regla,Columna,Problema,Tratamiento,FilasAfectadas
+0-Estructura,ID,Columna 100% vacía,Se elimina; se genera IdRegistro secuencial,7158
+0-Texto,SistemaCanal,Espacio duro (NBSP) dentro del texto,Se reemplaza por espacio normal,29
+0-Texto,Estado,Texto literal 'NULL',Se convierte a nulo real,105
+2-Categorías,Codigo,Prefijo en minúsculas ('Req'),Se pasa a mayúsculas,1
+2-Categorías,SistemaCanal,Error tipográfico 'AGENDA PROCEDMIENTOS',Se corrige la etiqueta,15
+2-Categorías,Accion,Sinónimo '02_Analizado' de '02_Analisis',Se unifica en una sola acción,12
+2-Categorías,Accion,Ortografía inconsistente (Reunion/Analisis/Estimacion sin tilde),Se uniforma con tildes,4217
+2-Categorías,Estado,"Mismo estado escrito distinto (Cerrada/Cerrado, Resuelta/Resuelto)","Se uniforma: Cerrado, Resuelto, Asignado",6216
+1-Duplicados,(todas),Registro idéntico byte a byte en el CSV original,Se conserva la primera aparición,71
+1-Duplicados,(todas),Registro idéntico solo después de estandarizar (p.ej. Cerrada/Cerrado),Se conserva la primera aparición,12
+3-Fechas,Fecha,"Fecha inexistente en el calendario (03/21/2026, 18/13/2026, 24/16/2026, 32/11/2026, 33/03/2026, 35/01/2026)",Se imputa con la fecha del registro anterior (archivo cronológico),22
+3-Fechas,Fecha,Fecha vacía,Se imputa con la fecha del registro anterior (archivo cronológico),32
+3-Fechas,Fecha,Fechas imputadas que estaban entre dos registros del mismo día,Informativo: imputación de confianza alta,33
+3-Fechas,Fecha,Texto dd/mm/yyyy,"Se convierte a fecha ISO (yyyy-mm-dd) + Año, Mes, AñoMes",7075
+4-Horas,Horas,Texto hh:mm:ss no sumable,Se convierte a horas decimales (01:30:00 -> 1.5),7075
+4-Horas,Horas,Horas en cero o negativas,Se tratan como nulas,0
+4-Horas,Horas,Horas vacías,Se imputan con la mediana de horas de la misma acción,45
+4-Horas,Horas,Registro individual > 10.0 h (cerco extremo Q3+3*IQR; supera una jornada de 9.5 h),Se acota (winsoriza) a 10.0 h; el valor original queda en HorasOriginal,55
+4-Horas,Horas,Usuario con más de 12 h registradas en un mismo día (28 días-usuario),Se marca FlagDiaSobrecargado (no se altera: no se sabe qué registro sobra),176
+5-Imputación,SistemaCanal,Sistema vacío; recuperado de otro registro del mismo ticket,Se usa el sistema más frecuente del ticket,15
+5-Imputación,SistemaCanal,Sistema vacío sin otra referencia en el ticket,Se etiqueta 'NO ESPECIFICADO',21
+5-Imputación,Usuario,Usuario vacío (un ticket puede tener varios técnicos),Se etiqueta 'NO IDENTIFICADO',39
+5-Imputación,Accion,Acción vacía,Se etiqueta '00_No Especificado',24
+5-Imputación,Estado,Estado nulo; el ticket tiene estado en otro registro,Se usa el último estado conocido del ticket,55
+5-Imputación,Estado,Estado nulo sin otra referencia en el ticket,Se etiqueta 'Sin Estado' (no cuenta como resuelto),49
+5-Derivadas,EstadoTicket,Tickets con más de un estado en el periodo (15 tickets),EstadoTicket = estado del último registro del ticket,15

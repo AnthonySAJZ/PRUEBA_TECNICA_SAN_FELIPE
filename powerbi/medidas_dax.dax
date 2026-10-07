@@ -1,0 +1,134 @@
+// ============================================================================
+// PRUEBA TÉCNICA - ANALISTA DE DATOS
+// MÓDULO 4 - Medidas DAX (Power BI)
+// Tabla de hechos : Requerimientos  (archivo data/clean/RequerimientosPruebaDatos_Limpio.csv
+//                                    o tabla dbo.RequerimientosLimpio de SQL Server)
+// Tabla de fechas : Calendario      (ver tabla calculada al final)
+// Una fila = un registro de horas de un técnico sobre un ticket.
+// ============================================================================
+
+
+// ---------------------------------------------------------------------------
+// 1. MEDIDAS REQUERIDAS
+// ---------------------------------------------------------------------------
+
+// [Q Tickets] - Conteo único de tickets atendidos (un ticket con 20 registros cuenta 1)
+Q Tickets =
+DISTINCTCOUNT ( Requerimientos[Codigo] )
+
+// [Q Registros] - Conteo total de registros de atención (complementa a Q Tickets)
+Q Registros =
+COUNTROWS ( Requerimientos )
+
+// [Q Horas] - Suma total de horas invertidas (horas ya tratadas en el Módulo 2)
+Q Horas =
+SUM ( Requerimientos[Horas] )
+
+// [Promedio Horas x Ticket] - Horas promedio dedicadas por ticket
+Promedio Horas x Ticket =
+DIVIDE ( [Q Horas], [Q Tickets] )
+
+// [% Resueltos] - Proporción de tickets cerrados o resueltos respecto al total.
+// Se usa EstadoTicket (estado del último registro del ticket) para que cada
+// ticket tenga un solo estado aunque haya cambiado en el periodo.
+% Resueltos =
+VAR TicketsResueltos =
+    CALCULATE (
+        DISTINCTCOUNT ( Requerimientos[Codigo] ),
+        KEEPFILTERS ( Requerimientos[EstadoTicket] IN { "Cerrado", "Resuelto" } )
+    )
+RETURN
+    DIVIDE ( TicketsResueltos, [Q Tickets] )
+// Formato: Porcentaje, 1 decimal
+
+
+// ---------------------------------------------------------------------------
+// 2. MEDIDAS DE APOYO (análisis de eficiencia y cuellos de botella)
+// ---------------------------------------------------------------------------
+
+Q Tickets Resueltos =
+CALCULATE (
+    DISTINCTCOUNT ( Requerimientos[Codigo] ),
+    KEEPFILTERS ( Requerimientos[EstadoTicket] IN { "Cerrado", "Resuelto" } )
+)
+
+Q Tickets Pendientes =
+[Q Tickets] - [Q Tickets Resueltos]
+
+Promedio Horas x Registro =
+AVERAGE ( Requerimientos[Horas] )
+
+Mediana Horas x Registro =
+MEDIAN ( Requerimientos[Horas] )
+
+// Horas promedio por técnico y día trabajado (la jornada observada es ~9.5 h)
+Horas x Usuario Dia =
+DIVIDE (
+    [Q Horas],
+    COUNTROWS ( SUMMARIZE ( Requerimientos, Requerimientos[Usuario], Requerimientos[FechaRegistro] ) )
+)
+
+// Días-usuario con más de 12 h registradas (posible sobrecarga o doble registro).
+// Se excluye "NO IDENTIFICADO" porque agrupa a varias personas.
+Q Dias Sobrecargados =
+COUNTROWS (
+    FILTER (
+        SUMMARIZE ( Requerimientos, Requerimientos[Usuario], Requerimientos[FechaRegistro] ),
+        Requerimientos[Usuario] <> "NO IDENTIFICADO"
+            && CALCULATE ( SUM ( Requerimientos[Horas] ) ) > 12
+    )
+)
+
+// Participación de las horas del contexto sobre el total del periodo filtrado
+% Horas del Total =
+DIVIDE ( [Q Horas], CALCULATE ( [Q Horas], ALLSELECTED ( Requerimientos ) ) )
+
+// Horas de tickets abiertos antes de 2026 (backlog heredado).
+// AnioTicket se crea en Power Query (ver power_query_requerimientos.m).
+Q Horas Backlog Anterior 2026 =
+CALCULATE (
+    [Q Horas],
+    KEEPFILTERS ( Requerimientos[AnioTicket] < 2026 )
+)
+
+% Horas Backlog =
+DIVIDE ( [Q Horas Backlog Anterior 2026], [Q Horas] )
+
+
+// ---------------------------------------------------------------------------
+// 3. INTELIGENCIA DE TIEMPO (requiere la tabla Calendario relacionada)
+// ---------------------------------------------------------------------------
+
+Q Tickets Mes Anterior =
+CALCULATE ( [Q Tickets], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+
+Var % Q Tickets MoM =
+DIVIDE ( [Q Tickets] - [Q Tickets Mes Anterior], [Q Tickets Mes Anterior] )
+
+Q Horas Mes Anterior =
+CALCULATE ( [Q Horas], DATEADD ( Calendario[Fecha], -1, MONTH ) )
+
+Var % Q Horas MoM =
+DIVIDE ( [Q Horas] - [Q Horas Mes Anterior], [Q Horas Mes Anterior] )
+
+
+// ---------------------------------------------------------------------------
+// 4. TABLA CALCULADA: Calendario
+//    Modelado > Nueva tabla. Luego: marcar como tabla de fechas y crear la
+//    relación Calendario[Fecha] 1 --- * Requerimientos[FechaRegistro].
+// ---------------------------------------------------------------------------
+
+Calendario =
+VAR FechaMin = MIN ( Requerimientos[FechaRegistro] )
+VAR FechaMax = MAX ( Requerimientos[FechaRegistro] )
+RETURN
+    SELECTCOLUMNS (
+        CALENDAR ( DATE ( YEAR ( FechaMin ), 1, 1 ), DATE ( YEAR ( FechaMax ), 12, 31 ) ),
+        "Fecha", [Date],
+        "Anio", YEAR ( [Date] ),
+        "Mes", MONTH ( [Date] ),
+        "AnioMes", FORMAT ( [Date], "yyyy-mm" ),
+        "NombreMes", FORMAT ( [Date], "mmm yyyy" ),
+        "DiaSemana", WEEKDAY ( [Date], 2 )
+    )
+// Ordenar la columna NombreMes por AnioMes (Herramientas de columna > Ordenar por columna).
